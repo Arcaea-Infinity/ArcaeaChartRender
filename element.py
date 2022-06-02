@@ -33,42 +33,46 @@ class Element(ABC):
 class Chart(object):
     """Arcaea chart."""
 
-    def __init__(self, header: list['Header'], command: list[Command]):
-        self.header = header
-        self.command = command
+    def __init__(self, header_list: list['Header'], command_list: list[Command]):
+        self.header_list = header_list
+        self.command_list = command_list
 
-    def _get_tap_combo(self) -> int:
+    def _get_tap_count(self) -> int:
         """Return the number of Tap note"""
-        count_in_cmd = sum(1 for tap in self.command if isinstance(tap, Tap))
+        count_in_cmd = sum(1 for tap in self.command_list if isinstance(tap, Tap))
         count_in_timing_group = sum(
-            1
-            for timing_group in self.command if isinstance(timing_group, TimingGroup)
-            for tap in timing_group.item if isinstance(tap, Tap)
+            timing_group._get_tap_count()
+            for timing_group in self.command_list if isinstance(timing_group, TimingGroup)
         )
         return count_in_cmd + count_in_timing_group
 
-    def _get_arctap_combo(self) -> int:
+    def _get_arctap_count(self) -> int:
         """Return the number of ArcTap note"""
-        count_in_cmd = sum(
-            1
-            for arc in self.command if isinstance(arc, Arc)
-            for _ in arc.arctap_list
-        )
+        count_in_cmd = sum(arc.get_arctap_count() for arc in self.command_list if isinstance(arc, Arc))
         count_in_timing_group = sum(
-            1
-            for timing_group in self.command if isinstance(timing_group, TimingGroup)
-            for arc in timing_group.item if isinstance(arc, Arc)
-            for _ in arc.arctap_list
+            timing_group._get_arctap_count()
+            for timing_group in self.command_list if isinstance(timing_group, TimingGroup)
         )
         return count_in_cmd + count_in_timing_group
 
     def _get_hold_combo(self) -> int:
         """Return the total combo of the Hold note"""
+        # TODO: implement
+        raise NotImplementedError
+
+    def _get_arc_combo(self) -> int:
+        """Return the total combo of the Arc note"""
+        # TODO: implement
         raise NotImplementedError
 
     def get_total_combo(self) -> int:
         """Return the total combo of the chart."""
-        raise NotImplementedError
+        return sum([
+            self._get_tap_count(),
+            self._get_arctap_count(),
+            self._get_hold_combo(),
+            self._get_arc_combo(),
+        ])
 
     def syntax_check(self) -> bool:
         """Check the syntax of the chart as a whole."""
@@ -404,32 +408,29 @@ class SceneControl(Control):
         ])
 
 
-class TimingGroup(Control):
+class TimingGroup(Chart, Control):
     """Use the internal independent timing statements to control Notes and Controls within the group."""
 
-    def __init__(
-            self,
-            type_list: list[str],
-            item: list[Command]
-    ):
+    def __init__(self, type_list: list[str], command_list: list[Command]):
+        super().__init__([], command_list)  # TimingGroup is a Chart without headers
         self.type_list = type_list
-        self.item = item
 
     def __repr__(self):
         literal_type = f', type: {" ".join(self.type_list)}' if self.type_list else ''
-        return f'[TimingGroup] {len(self.item)} commands{literal_type}'
+        return f'[TimingGroup] {len(self.command_list)} commands{literal_type}'
 
     def __str__(self):
-        return self.__repr__() + '\n > ' + '\n > '.join([str(_) for _ in self.item])
+        return self.__repr__() + '\n > ' + '\n > '.join([str(_) for _ in self.command_list])
 
     def syntax_check(self) -> bool:
+        """Overrides Chart.syntax_check(), it just checks the inner commands."""
         return all([
             isinstance(self.type_list, list),
             all(sub_type in AffToken.Value.TimingGroup.all for sub_type in self.type_list),
-            isinstance(self.item, list),
-            all(sub_command.syntax_check() for sub_command in self.item)
+            isinstance(self.command_list, list),
+            all(sub_command.syntax_check() for sub_command in self.command_list)
         ])
 
     def sub_command_syntax_check(self) -> list[tuple[Command, bool]]:
         """Check the syntax of each subcommand (Note and Control) within the group individually."""
-        return [(sub_command, sub_command.syntax_check()) for sub_command in self.item]
+        return [(sub_command, sub_command.syntax_check()) for sub_command in self.command_list]
