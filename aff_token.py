@@ -77,7 +77,7 @@ class Color(enum.Enum):
     Blue = 0
     Red = 1
     Green = 2
-    Unknown = 3  # used in PRAGMATISM (BEYOND)
+    Alpha = 3  # used in PRAGMATISM (BEYOND)
 
     @classmethod
     def _missing_(cls, value):
