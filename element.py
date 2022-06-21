@@ -9,107 +9,169 @@ so please DO NOT rely on it too much.
 """
 
 __all__ = [
-    'Command',
-    'Element', 'Chart',
-    'Header', 'Note', 'Control',
-    'AudioOffset', 'TimingPointDensityFactor',
+    'Command', 'Chart',
+    'Note', 'Control',
     'Tap', 'Hold', 'Arc', 'ArcTap', 'Flick',
     'Timing', 'Camera', 'SceneControl', 'TimingGroup',
 ]
 
-from abc import ABC
-from typing import Union, Optional
+from abc import ABC, abstractmethod
+from typing import Union, Optional, Type, TypeVar
 
 from aff_token import AffToken, Color
 
-AnyValue = Union[str, int, float]
-Command = Union['Note', 'Control']
+_T = TypeVar('_T', bound='Command')
 
 
-class Element(ABC):
-    pass
+class Command(ABC):
+
+    @abstractmethod
+    def syntax_check(self) -> bool:
+        """Basic syntax check of a command."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_interval(self) -> tuple[int, int]:
+        """Return the interval (start and end time) of this command."""
+        raise NotImplementedError
 
 
 class Chart(object):
     """Arcaea chart."""
 
-    def __init__(self, header_list: list['Header'], command_list: list[Command]):
-        self.header_list = header_list
+    def __init__(self, header_dict: dict, command_list: list['Command']):
+        self.header_dict = header_dict
         self.command_list = command_list
+        self._sorted_timing_list = sorted(
+            self.get_command_list_for_type(Timing),
+            key=lambda _: _.t
+        )  # not including the ones in timing groups
 
-    def _get_tap_count(self) -> int:
-        """Return the number of Tap note"""
-        count_in_cmd = sum(1 for tap in self.command_list if isinstance(tap, Tap))
-        count_in_timing_group = sum(
-            timing_group._get_tap_count()
-            for timing_group in self.command_list if isinstance(timing_group, TimingGroup)
+    def _get_note_bpm(self, note: 'Note') -> 'Timing':
+        """Return the BPM corresponding to the (start time of the) note."""
+        start_time = note.get_interval()[0]
+        for timing in self._sorted_timing_list:
+            if timing.t <= start_time:
+                return timing
+
+    def _return_connected_arc_list(self) -> list['Arc']:
+        """
+        Analyze the first and last cases of all Arc and return a list of
+        Arc after assigning the correct value to 'has_head' attribute.
+        """
+        arc_list = filter(
+            lambda _: not _.is_skyline,
+            self.get_command_list_for_type(Arc)
         )
-        return count_in_cmd + count_in_timing_group
+        arc_list_start_sorted = sorted(
+            arc_list,
+            key=lambda _: _.get_interval()[0]
+        )  # listed in ascending order by Arc start timing
+        arc_list_end_sorted = sorted(
+            arc_list_start_sorted,
+            key=lambda _: _.get_interval()[1]
+        )  # listed in ascending order by Arc end timing
+        length = len(arc_list_start_sorted)
+        i = 0
+        for arc in arc_list_start_sorted:
+            for j in range(i, length):
+                arc_prev = arc_list_end_sorted[j]
+                if arc_prev.t2 <= arc.t1 - 10:
+                    i = j
+                elif arc_prev.t2 >= arc.t1 + 10:
+                    break
+                elif arc_prev != arc and arc.y1 == arc_prev.y2 and abs(arc.x1 - arc_prev.x2) <= 0.1:
+                    arc.has_head = False
 
-    def _get_arctap_count(self) -> int:
-        """Return the number of ArcTap note"""
-        count_in_cmd = sum(arc.get_arctap_count() for arc in self.command_list if isinstance(arc, Arc))
-        count_in_timing_group = sum(
-            timing_group._get_arctap_count()
-            for timing_group in self.command_list if isinstance(timing_group, TimingGroup)
-        )
-        return count_in_cmd + count_in_timing_group
+        return arc_list_start_sorted
 
-    def _get_hold_combo(self) -> int:
-        """Return the total combo of the Hold note"""
-        # TODO: implement
-        raise NotImplementedError
+    def get_density_factor(self) -> float:
+        """
+        Return the value of timing point density factor of the chart.
+        If the chart does not define a density factor, return 1.
+        """
+        return float(self.header_dict.get(AffToken.Keyword.timing_point_density_factor, 1.0))
 
-    def _get_arc_combo(self) -> int:
-        """Return the total combo of the Arc note"""
-        # TODO: implement
-        raise NotImplementedError
+    def get_command_list_for_type(self, type_: Type[_T]) -> list[_T]:
+        """Return a list of commands of the given type."""
+        return [command for command in self.command_list if isinstance(command, type_)]
+
+    def get_note_count_for_type(self, note_type: Type['Note']) -> int:
+        """Return the number (NOT combo) of notes of the given type. Include the notes in timing groups."""
+        if note_type == ArcTap:
+            count_in_cmd = sum(arc.get_arctap_count() for arc in self.command_list if isinstance(arc, Arc))
+        else:
+            count_in_cmd = sum(1 for note in self.command_list if isinstance(note, note_type))
+        return count_in_cmd
+
+    def get_long_note_combo(self, note_list: list['LongNote']) -> int:
+        """Return the total combo of the LongNote (Hold or Arc)."""
+        density_factor = self.get_density_factor()
+        result = 0
+
+        for long_note in note_list:
+            bpm = self._get_note_bpm(long_note).bpm
+            start_time, end_time = long_note.get_interval()
+            if bpm == 0 or long_note.t1 == long_note.t2:
+                continue
+            if bpm < 0:
+                bpm = -bpm
+            judge_duration = 60000 / bpm / density_factor if bpm >= 255 else 30000 / bpm / density_factor
+            count = int((end_time - start_time) / judge_duration)
+
+            if count <= 1:
+                result += 1
+            elif long_note.has_head:
+                result += count - 1
+            else:
+                result += count
+
+        return result
 
     def get_total_combo(self) -> int:
         """Return the total combo of the chart."""
-        return sum([
-            self._get_tap_count(),
-            self._get_arctap_count(),
-            self._get_hold_combo(),
-            self._get_arc_combo(),
+        combo_in_chart = sum([
+            self.get_note_count_for_type(Tap),  # Tap
+            self.get_note_count_for_type(ArcTap),  # ArcTap
+            self.get_long_note_combo(self.get_command_list_for_type(Hold)),  # Hold
+            self.get_long_note_combo(self._return_connected_arc_list()),  # Arc
         ])
+        combo_in_timing_group = sum(
+            control.get_total_combo()
+            for control in self.command_list if isinstance(control, TimingGroup)
+        )
+        return combo_in_chart + combo_in_timing_group
+
+    def get_interval(self) -> tuple[int, int]:
+        """Return the interval (start and end time) of the chart."""
+        return (
+            min([_.get_interval()[0] for _ in self.command_list]),
+            max([_.get_interval()[1] for _ in self.command_list]),
+        )
+
+    def get_bpm_proportion(self) -> dict[float, float]:
+        """Return the proportion of BPMs in the chart. Ignore the bpm changes in timing group."""
+        result: dict[float, Union[float, int]] = {}  # (BPM: Proportion)
+        timing_list = self._sorted_timing_list
+        timing_position_list = [_.t for _ in timing_list]
+        timing_value_list = [_.bpm for _ in timing_list]
+        duration = self.get_interval()[1]
+        timing_position_list.append(duration)
+
+        for index, bpm in enumerate(timing_value_list):
+            if bpm not in result:
+                result[bpm] = 0
+            result[bpm] += (timing_position_list[index + 1] - timing_position_list[index]) / duration
+
+        return result
 
     def syntax_check(self) -> bool:
         """Check the syntax of the chart as a whole."""
         raise NotImplementedError
 
 
-class Header(Element):
-    """Chart header, a k-v pair."""
-
-    def __init__(self, key: str, value: AnyValue):
-        self.key = key
-        self.value = value
-
-    def __repr__(self):
-        return f'{self.key}:{self.value}'
-
-
-class AudioOffset(Header):
-    """Audio delay of the chart."""
-
-    def __init__(self, value: int):
-        super().__init__(AffToken.Keyword.audio_offset, value)
-
-
-class TimingPointDensityFactor(Header):
-    """Multiplicity of Arc and Hold densities relative to the normal case."""
-
-    def __init__(self, value: float):
-        super().__init__(AffToken.Keyword.timing_point_density_factor, value)
-
-
-class Note(Element):
+class Note(Command, ABC):
     """Base class for all note types."""
-
-    def syntax_check(self) -> bool:
-        """Basic syntax check of a note. DO NOT rely on it too much."""
-        raise NotImplementedError
 
 
 class Tap(Note):
@@ -128,8 +190,18 @@ class Tap(Note):
             self.lane in range(1, 5),
         ])
 
+    def get_interval(self) -> tuple[int, int]:
+        return self.t, self.t
 
-class Hold(Note):
+
+class LongNote(Note, ABC):
+    """Hold and Arc."""
+    t1: int
+    t2: int
+    has_head = True
+
+
+class Hold(LongNote):
     """Ground hold."""
 
     def __init__(
@@ -148,12 +220,15 @@ class Hold(Note):
         return all([
             isinstance(self.t1, int),
             isinstance(self.t2, int),
-            self.t1 <= self.t2,
+            self.t1 < self.t2,
             self.lane in range(1, 5),
         ])
 
+    def get_interval(self) -> tuple[int, int]:
+        return self.t1, self.t2
 
-class Arc(Note):
+
+class Arc(LongNote):
     """Arc."""
 
     def __init__(
@@ -185,16 +260,27 @@ class Arc(Note):
         self.arctap_list = arctap_list
 
     def __repr__(self):
+        pos = f'from ({self.x1}, {self.y1}) to ({self.x2}, {self.y2})'
         if self.is_skyline:
             if self.arctap_list:
                 literal_arctap_list = ', with arctap: ' + ' '.join(map(lambda _: str(_.tn), self.arctap_list))
             else:
                 literal_arctap_list = ''
             return (
-                f'[{self.t1} -> {self.t2} Skyline] from ({self.x1}, {self.y1}) to ({self.x2}, {self.y2})'
+                f'[{self.t1} -> {self.t2} Skyline] {self.has_head} {pos}'
                 f'{literal_arctap_list}'
             )
-        return f'[{self.t1} -> {self.t2} {self.color} Arc] from ({self.x1}, {self.y1}) to ({self.x2}, {self.y2})'
+        return f'[{self.t1} -> {self.t2} {self.color} Arc] {self.has_head} {pos}'
+
+    def __eq__(self, other):
+        return all([
+            self.t1 == other.t1,
+            self.t2 == other.t2,
+            self.x1 == other.x1,
+            self.x2 == other.x2,
+            self.y1 == other.y1,
+            self.y2 == other.y2,
+        ])
 
     def syntax_check(self) -> bool:
         return all([
@@ -219,6 +305,9 @@ class Arc(Note):
         """Return the number of ArcTap note on this Arc."""
         return len(self.arctap_list)
 
+    def get_interval(self) -> tuple[int, int]:
+        return self.t1, self.t2
+
 
 class ArcTap(Note):
     """Taps on skyline."""
@@ -241,6 +330,9 @@ class ArcTap(Note):
             isinstance(self.tn, int),
             self.arc_timing_window[0] <= self.tn <= self.arc_timing_window[1],
         ])
+
+    def get_interval(self) -> tuple[int, int]:
+        return self.tn, self.tn
 
 
 class Flick(Note):
@@ -270,12 +362,12 @@ class Flick(Note):
             isinstance(self.vy, float),
         ])
 
+    def get_interval(self) -> tuple[int, int]:
+        return self.t, self.t
 
-class Control(Element):
 
-    def syntax_check(self) -> bool:
-        """Basic syntax check of a control. DO NOT rely on it too much."""
-        raise NotImplementedError
+class Control(Command, ABC):
+    """Base class for control commands."""
 
 
 class Timing(Control):
@@ -310,6 +402,9 @@ class Timing(Control):
                 self.in_timing_group,
             ])
         ])
+
+    def get_interval(self) -> tuple[int, int]:
+        return self.t, self.t
 
 
 class Camera(Control):
@@ -356,6 +451,9 @@ class Camera(Control):
             self.easing in AffToken.Value.Camera.all,
             isinstance(self.lasting_time, int),
         ])
+
+    def get_interval(self) -> tuple[int, int]:
+        return self.t, self.t + self.lasting_time
 
 
 class SceneControl(Control):
@@ -407,12 +505,15 @@ class SceneControl(Control):
             ]),
         ])
 
+    def get_interval(self) -> tuple[int, int]:
+        return self.t, self.t
+
 
 class TimingGroup(Chart, Control):
     """Use the internal independent timing statements to control Notes and Controls within the group."""
 
     def __init__(self, type_list: list[str], command_list: list[Command]):
-        super().__init__([], command_list)  # TimingGroup is a Chart without headers
+        super().__init__({}, command_list)  # TimingGroup is a Chart without headers
         self.type_list = type_list
 
     def __repr__(self):
@@ -430,6 +531,13 @@ class TimingGroup(Chart, Control):
             isinstance(self.command_list, list),
             all(sub_command.syntax_check() for sub_command in self.command_list)
         ])
+
+    def get_total_combo(self) -> int:
+        """
+        Return the total combo in this timing group.
+        Return 0 if 'type_list' contains 'noinput'.
+        """
+        return 0 if 'noinput' in self.type_list else super(TimingGroup, self).get_total_combo()
 
     def sub_command_syntax_check(self) -> list[tuple[Command, bool]]:
         """Check the syntax of each subcommand (Note and Control) within the group individually."""

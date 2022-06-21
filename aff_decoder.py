@@ -4,14 +4,14 @@ Decode an aff file into a Chart object.
 
 __all__ = ['decode', 'parse_header', 'parse_command_dict', 'parse_aff']
 
-from typing import Optional
+from typing import Optional, Any
 
 import aff_parsing
 from aff_token import AffToken
 from element import (
-    Chart, Header, Command,
+    Chart, Command,
     Tap, Arc, Flick, Hold,
-    Camera, SceneControl, Timing, TimingGroup, AudioOffset, TimingPointDensityFactor, ArcTap
+    Camera, SceneControl, Timing, TimingGroup, ArcTap
 )
 
 
@@ -24,7 +24,8 @@ def decode(command_type: str, command: list, in_timing_group: bool = False) -> C
         # [[28666, 28999, 0.25, 0.25, 's', 0.00, 0.00, 0, 'none', 'true'], [[28666], [28833]]]
         arc = command[0]
         arctap_list: list[ArcTap] = list(map(
-            lambda _: ArcTap(tn=_[0], arc_timing_window=(arc[0], arc[1]), color=arc[7]), command[1]
+            lambda _: ArcTap(tn=_[0], arc_timing_window=(arc[0], arc[1]), color=arc[7]),
+            command[1]
         )) if len(command) == 2 else []
         return Arc(*arc, arctap_list=arctap_list)
     elif command_type == AffToken.Keyword.flick:
@@ -47,14 +48,10 @@ def decode(command_type: str, command: list, in_timing_group: bool = False) -> C
     raise ValueError(f'Unknown command type: {command_type}')
 
 
-def parse_header(line: str) -> Header:
+def parse_header(line: str) -> tuple[str, Any]:
     """Record header k-v pair and return a Header object."""
     key, _, value = aff_parsing.header.parse_string(line)
-    if key == AffToken.Keyword.audio_offset:
-        return AudioOffset(int(value))
-    elif key == AffToken.Keyword.timing_point_density_factor:
-        return TimingPointDensityFactor(float(value))
-    return Header(key, value)
+    return key, value
 
 
 def parse_command_dict(command_dict: dict[str, list], in_timing_group: bool = False) -> list[Command]:
@@ -77,12 +74,13 @@ def parse_command_dict(command_dict: dict[str, list], in_timing_group: bool = Fa
 
 def parse_aff(aff: list[str]) -> Chart:
     """Parse aff file and return a Chart object."""
-    header_list: list[Header] = []
+    header_dict: dict = {}
 
     # record headers (before '-\n')
     line = aff.pop(0)
     while line != '-\n':
-        header_list.append(parse_header(line))
+        key, value = parse_header(line)
+        header_dict[key] = value
         line = aff.pop(0)
 
     # record commands (use PyParsing to parse rest of lines directly)
@@ -90,4 +88,4 @@ def parse_aff(aff: list[str]) -> Chart:
     command_dict: dict[str, list] = aff_parsing.command.parse_string(rest_content).as_dict()
     command_list: list[Command] = parse_command_dict(command_dict)
 
-    return Chart(header_list, command_list)
+    return Chart(header_dict, command_list)

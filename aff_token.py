@@ -27,20 +27,20 @@ class AffToken(object):
         class SkyLine(object):
             true = 'true'
             false = 'false'
-            all = 'true false'
+            all = [true, false]
 
         class FX(object):
             none = 'none'
             full = 'full'
             incremental = 'incremental'
-            all = 'none full incremental'
+            all = [none, full, incremental]
 
         class Easing(object):
             both = 'b'  # (Sine in & out)
             straight = 's'
             sine_in = 'si'
             sine_out = 'so'
-            all = 'b s si so sisi soso siso sosi'
+            all = 'b s si so sisi soso siso sosi'.split()
 
         class Camera(object):
             cubic_in = 'qi'
@@ -48,7 +48,7 @@ class AffToken(object):
             linear = 'l'
             sine_in_and_out = 's'
             reset = 'reset'
-            all = 'qi qo l s reset'
+            all = [cubic_in, cubic_out, linear, sine_in_and_out, reset]
 
         class SceneControl(object):
             track_hide = 'trackhide'
@@ -58,14 +58,14 @@ class AffToken(object):
             arcahv_distort = 'arcahvdistort'
             arcahv_debris = 'arcahvdebris'
             hide_group = 'hidegroup'
-            all = 'trackhide trackshow trackdisplay redline arcahvdistort arcahvdebris hidegroup'
+            all = [track_hide, track_show, track_display, redline, arcahv_distort, arcahv_debris, hide_group]
 
         class TimingGroup(object):
             no_input = 'noinput'
             fading_holds = 'fadingholds'
             angle_x = 'anglex'
             angle_y = 'angley'
-            all = 'noinput fadingholds anglex angley'
+            all = [no_input, fading_holds, angle_x, angle_y]
 
     class Spilt(object):
         header_split = ':'
