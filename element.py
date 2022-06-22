@@ -93,7 +93,12 @@ class Chart(object):
         """
         return float(self.header_dict.get(AffToken.Keyword.timing_point_density_factor, 1.0))
 
-    def get_command_list_for_type(self, type_: Type[_T], search_in_timing_group: bool = False) -> list[_T]:
+    def get_command_list_for_type(
+            self,
+            type_: Type[_T],
+            search_in_timing_group: bool = False,
+            exclude_noinput: bool = False,
+    ) -> list[_T]:
         """Return a list of commands of the given type."""
         if type_ == ArcTap:
             list_of_arctap_list = [arc.arctap_list for arc in self.command_list if isinstance(arc, Arc)]
@@ -103,7 +108,7 @@ class Chart(object):
 
         if search_in_timing_group:
             list_in_timing_group = list(chain(*[
-                timing_group.get_command_list_for_type(type_)
+                timing_group.get_command_list_for_type(type_, search_in_timing_group, exclude_noinput)
                 for timing_group in self.get_command_list_for_type(TimingGroup)
             ]))
 
@@ -553,6 +558,16 @@ class TimingGroup(Chart, Control):
         Return 0 if 'type_list' contains 'noinput'.
         """
         return 0 if 'noinput' in self.type_list else super(TimingGroup, self).get_total_combo()
+
+    def get_command_list_for_type(
+            self,
+            type_: Type[_T],
+            search_in_timing_group: bool = False,
+            exclude_noinput: bool = False,
+    ) -> list[_T]:
+        if exclude_noinput and 'noinput' in self.type_list:
+            return []
+        return super(TimingGroup, self).get_command_list_for_type(type_, search_in_timing_group)
 
     def sub_command_syntax_check(self) -> list[tuple[Command, bool]]:
         """Check the syntax of each subcommand (Note and Control) within the group individually."""
