@@ -50,9 +50,12 @@ class Chart(object):
     def _get_note_bpm(self, note: 'Note') -> 'Timing':
         """Return the BPM corresponding to the (start time of the) note."""
         start_time = note.get_interval()[0]
-        for timing in self._sorted_timing_list:
-            if timing.t <= start_time:
-                return timing
+        i = 0
+        while i < len(self._sorted_timing_list) - 1:
+            if self._sorted_timing_list[i].t <= start_time < self._sorted_timing_list[i + 1].t:
+                break
+            i += 1
+        return self._sorted_timing_list[i]
 
     def _return_connected_arc_list(self) -> list['Arc']:
         """
@@ -557,7 +560,7 @@ class TimingGroup(Chart, Control):
         Return the total combo in this timing group.
         Return 0 if 'type_list' contains 'noinput'.
         """
-        return 0 if 'noinput' in self.type_list else super(TimingGroup, self).get_total_combo()
+        return 0 if 'noinput' in self.type_list else super().get_total_combo()
 
     def get_command_list_for_type(
             self,
@@ -567,7 +570,7 @@ class TimingGroup(Chart, Control):
     ) -> list[_T]:
         if exclude_noinput and 'noinput' in self.type_list:
             return []
-        return super(TimingGroup, self).get_command_list_for_type(type_, search_in_timing_group)
+        return super().get_command_list_for_type(type_, search_in_timing_group)
 
     def sub_command_syntax_check(self) -> list[tuple[Command, bool]]:
         """Check the syntax of each subcommand (Note and Control) within the group individually."""
