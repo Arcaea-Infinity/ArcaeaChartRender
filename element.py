@@ -17,7 +17,7 @@ __all__ = [
 
 from abc import ABC, abstractmethod
 from typing import Union, Optional, Type, TypeVar
-
+from itertools import chain
 from aff_token import AffToken, Color
 
 _T = TypeVar('_T', bound='Command')
@@ -45,7 +45,7 @@ class Chart(object):
         self._sorted_timing_list = sorted(
             self.get_command_list_for_type(Timing),
             key=lambda _: _.t
-        )  # not including the ones in timing groups
+        )  # ignore the ones in timing groups
 
     def _get_note_bpm(self, note: 'Note') -> 'Timing':
         """Return the BPM corresponding to the (start time of the) note."""
@@ -71,6 +71,7 @@ class Chart(object):
             arc_list_start_sorted,
             key=lambda _: _.get_interval()[1]
         )  # listed in ascending order by Arc end timing
+
         length = len(arc_list_start_sorted)
         i = 0
         for arc in arc_list_start_sorted:
@@ -81,7 +82,7 @@ class Chart(object):
                 elif arc_prev.t2 >= arc.t1 + 10:
                     break
                 elif arc_prev != arc and arc.y1 == arc_prev.y2 and abs(arc.x1 - arc_prev.x2) <= 0.1:
-                    arc.has_head = False
+                    arc.has_head = False  # they meet
 
         return arc_list_start_sorted
 
@@ -92,17 +93,23 @@ class Chart(object):
         """
         return float(self.header_dict.get(AffToken.Keyword.timing_point_density_factor, 1.0))
 
-    def get_command_list_for_type(self, type_: Type[_T]) -> list[_T]:
+    def get_command_list_for_type(self, type_: Type[_T], search_in_timing_group: bool = False) -> list[_T]:
         """Return a list of commands of the given type."""
-        return [command for command in self.command_list if isinstance(command, type_)]
-
-    def get_note_count_for_type(self, note_type: Type['Note']) -> int:
-        """Return the number (NOT combo) of notes of the given type. Include the notes in timing groups."""
-        if note_type == ArcTap:
-            count_in_cmd = sum(arc.get_arctap_count() for arc in self.command_list if isinstance(arc, Arc))
+        if type_ == ArcTap:
+            list_of_arctap_list = [arc.arctap_list for arc in self.command_list if isinstance(arc, Arc)]
+            list_in_chart = list(chain(*list_of_arctap_list))
         else:
-            count_in_cmd = sum(1 for note in self.command_list if isinstance(note, note_type))
-        return count_in_cmd
+            list_in_chart = [command for command in self.command_list if isinstance(command, type_)]
+
+        if search_in_timing_group:
+            list_in_timing_group = list(chain(*[
+                timing_group.get_command_list_for_type(type_)
+                for timing_group in self.get_command_list_for_type(TimingGroup)
+            ]))
+
+            return list_in_chart + list_in_timing_group
+
+        return list_in_chart
 
     def get_long_note_combo(self, note_list: list['LongNote']) -> int:
         """Return the total combo of the LongNote (Hold or Arc)."""
@@ -131,8 +138,8 @@ class Chart(object):
     def get_total_combo(self) -> int:
         """Return the total combo of the chart."""
         combo_in_chart = sum([
-            self.get_note_count_for_type(Tap),  # Tap
-            self.get_note_count_for_type(ArcTap),  # ArcTap
+            len(self.get_command_list_for_type(Tap)),  # Tap
+            len(self.get_command_list_for_type(ArcTap)),  # ArcTap
             self.get_long_note_combo(self.get_command_list_for_type(Hold)),  # Hold
             self.get_long_note_combo(self._return_connected_arc_list()),  # Arc
         ])
@@ -164,6 +171,14 @@ class Chart(object):
             result[bpm] += (timing_position_list[index + 1] - timing_position_list[index]) / duration
 
         return result
+
+    def get_sorted_timing_list(self) -> list['Timing']:
+        """Return the sorted list of Timing."""
+        return self._sorted_timing_list
+
+    def get_duration(self) -> int:
+        """Return the duration of the chart."""
+        return self.get_interval()[1] - self.get_interval()[0]
 
     def syntax_check(self) -> bool:
         """Check the syntax of the chart as a whole."""
