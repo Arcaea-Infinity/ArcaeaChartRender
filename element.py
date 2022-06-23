@@ -16,8 +16,9 @@ __all__ = [
 ]
 
 from abc import ABC, abstractmethod
-from typing import Union, Optional, Type, TypeVar
 from itertools import chain
+from typing import Union, Optional, Type, TypeVar
+
 from aff_token import AffToken, Color
 
 _T = TypeVar('_T', bound='Command')
@@ -59,8 +60,9 @@ class Chart(object):
 
     def _return_connected_arc_list(self) -> list['Arc']:
         """
-        Analyze the first and last cases of all Arc and return a list of
-        Arc after assigning the correct value to 'has_head' attribute.
+        Analyze the first and last cases of all Arc and return a list of Arc
+        after assigning the correct value to 'has_head' attribute. These Arcs
+        do NOT include the ones in timing groups.
         """
         arc_list = filter(
             lambda _: not _.is_skyline,
@@ -92,7 +94,7 @@ class Chart(object):
     def get_density_factor(self) -> float:
         """
         Return the value of timing point density factor of the chart.
-        If the chart does not define a density factor, return 1.
+        If the chart does not define a density factor, return 1.0.
         """
         return float(self.header_dict.get(AffToken.Keyword.timing_point_density_factor, 1.0))
 
@@ -110,10 +112,16 @@ class Chart(object):
             list_in_chart = [command for command in self.command_list if isinstance(command, type_)]
 
         if search_in_timing_group:
-            list_in_timing_group = list(chain(*[
-                timing_group.get_command_list_for_type(type_, search_in_timing_group, exclude_noinput)
+            list_of_cmd_list_from_timing_group = [
+                timing_group.get_command_list_for_type(
+                    type_,
+                    search_in_timing_group,
+                    exclude_noinput,
+                    self.get_end_time()
+                )
                 for timing_group in self.get_command_list_for_type(TimingGroup)
-            ]))
+            ]
+            list_in_timing_group = list(chain(*list_of_cmd_list_from_timing_group))
 
             return list_in_chart + list_in_timing_group
 
@@ -184,9 +192,9 @@ class Chart(object):
         """Return the sorted list of Timing."""
         return self._sorted_timing_list
 
-    def get_duration(self) -> int:
+    def get_end_time(self) -> int:
         """Return the duration of the chart."""
-        return self.get_interval()[1] - self.get_interval()[0]
+        return max([_.get_interval()[1] for _ in self.command_list])
 
     def syntax_check(self) -> bool:
         """Check the syntax of the chart as a whole."""
@@ -536,8 +544,8 @@ class TimingGroup(Chart, Control):
     """Use the internal independent timing statements to control Notes and Controls within the group."""
 
     def __init__(self, type_list: list[str], command_list: list[Command]):
-        super().__init__({}, command_list)  # TimingGroup is a Chart without headers
         self.type_list = type_list
+        super().__init__({}, command_list)  # TimingGroup is a Chart without headers
 
     def __repr__(self):
         literal_type = f', type: {" ".join(self.type_list)}' if self.type_list else ''
@@ -567,10 +575,22 @@ class TimingGroup(Chart, Control):
             type_: Type[_T],
             search_in_timing_group: bool = False,
             exclude_noinput: bool = False,
+            chart_duration: Optional[int] = None
     ) -> list[_T]:
-        if exclude_noinput and 'noinput' in self.type_list:
+        if 'noinput' in self.type_list and (
+                exclude_noinput
+                or chart_duration and chart_duration < self.get_end_time()
+        ):  # abandon this timing group if its 'type_list' contains 'noinput' and it exceeds the chart duration
             return []
-        return super().get_command_list_for_type(type_, search_in_timing_group)
+        return super().get_command_list_for_type(type_, search_in_timing_group, exclude_noinput)
+
+    def get_interval(self) -> tuple[int, int]:
+        """
+        Return the interval (start and end time) of this timing group.
+        Return (0, 0) if 'type_list' contains 'noinput' so that timing groups
+        with the 'noinput' property would NOT affect the chart duration.
+        """
+        return 0, 0 if 'noinput' in self.type_list else super().get_interval()
 
     def sub_command_syntax_check(self) -> list[tuple[Command, bool]]:
         """Check the syntax of each subcommand (Note and Control) within the group individually."""
