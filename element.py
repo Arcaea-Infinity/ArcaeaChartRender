@@ -17,9 +17,10 @@ __all__ = [
 
 from abc import ABC, abstractmethod
 from itertools import chain
-from typing import Union, Optional, Type, TypeVar
+from typing import Union, Optional, Type, TypeVar, Iterator, Iterable
 
 from aff_token import AffToken, Color
+from utils import len_iter
 
 _T = TypeVar('_T', bound='Command')
 
@@ -103,16 +104,16 @@ class Chart(object):
             type_: Type[_T],
             search_in_timing_group: bool = False,
             exclude_noinput: bool = False,
-    ) -> list[_T]:
+    ) -> Iterator[_T]:
         """Return a list of commands of the given type."""
         if type_ == ArcTap:
-            list_of_arctap_list = [arc.arctap_list for arc in self.command_list if isinstance(arc, Arc)]
-            list_in_chart = list(chain(*list_of_arctap_list))
+            list_of_arctap_list = (arc.arctap_list for arc in self.command_list if isinstance(arc, Arc))
+            list_in_chart = chain(*list_of_arctap_list)
         else:
-            list_in_chart = [command for command in self.command_list if isinstance(command, type_)]
+            list_in_chart = (command for command in self.command_list if isinstance(command, type_))
 
         if search_in_timing_group:
-            list_of_cmd_list_from_timing_group = [
+            list_of_cmd_list_from_timing_group = (
                 timing_group.get_command_list_for_type(
                     type_,
                     search_in_timing_group,
@@ -120,14 +121,14 @@ class Chart(object):
                     self.get_end_time()
                 )
                 for timing_group in self.get_command_list_for_type(TimingGroup)
-            ]
-            list_in_timing_group = list(chain(*list_of_cmd_list_from_timing_group))
+            )
+            list_in_timing_group = chain(*list_of_cmd_list_from_timing_group)
 
-            return list_in_chart + list_in_timing_group
+            return chain(list_in_chart, list_in_timing_group)
 
         return list_in_chart
 
-    def get_long_note_combo(self, note_list: list['LongNote']) -> int:
+    def get_long_note_combo(self, note_list: Iterable['LongNote']) -> int:
         """Return the total combo of the LongNote (Hold or Arc)."""
         density_factor = self.get_density_factor()
         result = 0
@@ -154,8 +155,8 @@ class Chart(object):
     def get_total_combo(self) -> int:
         """Return the total combo of the chart."""
         combo_in_chart = sum([
-            len(self.get_command_list_for_type(Tap)),  # Tap
-            len(self.get_command_list_for_type(ArcTap)),  # ArcTap
+            len_iter(self.get_command_list_for_type(Tap)),  # Tap
+            len_iter(self.get_command_list_for_type(ArcTap)),  # ArcTap
             self.get_long_note_combo(self.get_command_list_for_type(Hold)),  # Hold
             self.get_long_note_combo(self._return_connected_arc_list()),  # Arc
         ])
@@ -168,8 +169,8 @@ class Chart(object):
     def get_interval(self) -> tuple[int, int]:
         """Return the interval (start and end time) of the chart."""
         return (
-            min([_.get_interval()[0] for _ in self.command_list]),
-            max([_.get_interval()[1] for _ in self.command_list]),
+            min(_.get_interval()[0] for _ in self.command_list),
+            max(_.get_interval()[1] for _ in self.command_list),
         )
 
     def get_bpm_proportion(self) -> dict[float, float]:
@@ -177,7 +178,7 @@ class Chart(object):
         result: dict[float, Union[float, int]] = {}  # (BPM: Proportion)
         timing_list = self._sorted_timing_list
         timing_position_list = [_.t for _ in timing_list]
-        timing_value_list = [_.bpm for _ in timing_list]
+        timing_value_list = (_.bpm for _ in timing_list)
         duration = self.get_interval()[1]
         timing_position_list.append(duration)
 
@@ -194,7 +195,7 @@ class Chart(object):
 
     def get_end_time(self) -> int:
         """Return the duration of the chart."""
-        return max([_.get_interval()[1] for _ in self.command_list])
+        return max(_.get_interval()[1] for _ in self.command_list)
 
     def syntax_check(self) -> bool:
         """Check the syntax of the chart as a whole."""
@@ -576,12 +577,12 @@ class TimingGroup(Chart, Control):
             search_in_timing_group: bool = False,
             exclude_noinput: bool = False,
             chart_duration: Optional[int] = None
-    ) -> list[_T]:
+    ) -> Iterator[_T]:
         if 'noinput' in self.type_list and (
                 exclude_noinput
                 or chart_duration and chart_duration < self.get_end_time()
         ):  # abandon this timing group if its 'type_list' contains 'noinput' and it exceeds the chart duration
-            return []
+            yield from ()
         return super().get_command_list_for_type(type_, search_in_timing_group, exclude_noinput)
 
     def get_interval(self) -> tuple[int, int]:
@@ -592,6 +593,6 @@ class TimingGroup(Chart, Control):
         """
         return (0, 0) if 'noinput' in self.type_list else super().get_interval()
 
-    def sub_command_syntax_check(self) -> list[tuple[Command, bool]]:
+    def sub_command_syntax_check(self) -> Iterator[tuple[Command, bool]]:
         """Check the syntax of each subcommand (Note and Control) within the group individually."""
-        return [(sub_command, sub_command.syntax_check()) for sub_command in self.command_list]
+        return ((sub_command, sub_command.syntax_check()) for sub_command in self.command_list)
