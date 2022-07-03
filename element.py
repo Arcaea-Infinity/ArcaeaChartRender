@@ -590,7 +590,7 @@ class TimingGroup(Chart, Control):
         Return (0, 0) if 'type_list' contains 'noinput' so that timing groups
         with the 'noinput' property would NOT affect the chart duration.
         """
-        return 0, 0 if 'noinput' in self.type_list else super().get_interval()
+        return (0, 0) if 'noinput' in self.type_list else super().get_interval()
 
     def sub_command_syntax_check(self) -> list[tuple[Command, bool]]:
         """Check the syntax of each subcommand (Note and Control) within the group individually."""
