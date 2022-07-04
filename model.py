@@ -7,16 +7,16 @@ class TitleLocalized(BaseModel):
     en: str
     jp: Optional[str]
     kr: Optional[str]
-    zh_Hans: Optional[str]
-    zh_Hant: Optional[str]
+    zh_Hans: Optional[str] = Field(str, alias='zh-Hans')
+    zh_Hant: Optional[str] = Field(str, alias='zh-Hant')
 
 
 class SourceLocalized(BaseModel):
     en: str
     ja: Optional[str]
     kr: Optional[str]
-    zh_Hans: Optional[str] = Field(..., alias='zh-Hans')
-    zh_Hant: Optional[str] = Field(..., alias='zh-Hant')
+    zh_Hans: Optional[str] = Field(str, alias='zh-Hans')
+    zh_Hant: Optional[str] = Field(str, alias='zh-Hant')
 
 
 class Difficulty(BaseModel):
