@@ -36,7 +36,7 @@ class AffToken(object):
             all = [none, full, incremental]
 
         class Easing(object):
-            both = 'b'  # (Sine in & out)
+            bezier = 'b'
             straight = 's'
             sine_in = 'si'
             sine_out = 'so'
