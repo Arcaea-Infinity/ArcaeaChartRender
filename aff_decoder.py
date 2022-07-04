@@ -49,7 +49,7 @@ def decode(command_type: str, command: list, in_timing_group: bool = False) -> C
 
 
 def parse_header(line: str) -> tuple[str, Any]:
-    """Record header k-v pair and return a Header object."""
+    """Record header k-v pair."""
     key, _, value = aff_parsing.header.parse_string(line)
     return key, value
 
@@ -61,7 +61,10 @@ def parse_command_dict(command_dict: dict[str, list], in_timing_group: bool = Fa
     All commands are sorted by type and stored in this dict,
     each value is a list of commands corresponding to the name of key
 
-    e.g. ``command_dict = {"timing": [[[0, 126.0, 4.0]], [[30476, 0.0, 4.0]], ...]}``
+    Usage::
+
+        command_dict = {"timing": [[[0, 126.0, 4.0]], [[30476, 0.0, 4.0]], ...]}
+        parse_command_dict(command_dict)
     """
     result: list[Command] = []
 
@@ -73,7 +76,14 @@ def parse_command_dict(command_dict: dict[str, list], in_timing_group: bool = Fa
 
 
 def parse_aff(aff: list[str]) -> Chart:
-    """Parse aff file and return a Chart object."""
+    """
+    Parse aff file and return a Chart object.
+
+    Usage::
+
+        from utils import read_file
+        parse_aff(read_file(aff_path))
+    """
     header_dict: dict = {}
 
     # record headers (before '-\n')

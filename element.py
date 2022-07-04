@@ -4,8 +4,8 @@ Abstract::
 This file defines all elements in the Arcaea chart file (aff).
 Definition extracted from https://wiki.arcaea.cn
 
-Each element provides a minimal syntax check, but it is not perfect,
-so please DO NOT rely on it too much.
+Each element provides a minimal syntax check, but it is not perfect, so please
+DO NOT rely on it too much.
 """
 
 __all__ = [
@@ -29,17 +29,21 @@ class Command(ABC):
 
     @abstractmethod
     def syntax_check(self) -> bool:
-        """Basic syntax check of a command."""
+        """
+        The most basic syntax check of the command, which only includes the
+        correctness of the command itself, cannot ensure the correctness of
+        the command in the whole chart.
+        """
         raise NotImplementedError
 
     @abstractmethod
     def get_interval(self) -> tuple[int, int]:
-        """Return the interval (start and end time) of this command."""
+        """Return the start and end time of this command."""
         raise NotImplementedError
 
 
 class Chart(object):
-    """Arcaea chart."""
+    """Records Arcaea's charts and contains some basic statistical information."""
 
     def __init__(self, header_dict: dict, command_list: list['Command']):
         self.header_dict = header_dict
@@ -50,7 +54,7 @@ class Chart(object):
         )  # ignore the ones in timing groups
 
     def _get_note_bpm(self, note: 'Note') -> 'Timing':
-        """Return the BPM corresponding to the (start time of the) note."""
+        """Returns which bpm (Timing) interval the note is in."""
         start_time = note.get_interval()[0]
         i = 0
         while i < len(self._sorted_timing_list) - 1:
@@ -61,7 +65,7 @@ class Chart(object):
 
     def _return_connected_arc_list(self) -> list['Arc']:
         """
-        Analyze the first and last cases of all Arc and return a list of Arc
+        Analyze the first and last cases of all Arcs and return a list of Arcs
         after assigning the correct value to 'has_head' attribute. These Arcs
         do NOT include the ones in timing groups.
         """
@@ -94,8 +98,8 @@ class Chart(object):
 
     def get_density_factor(self) -> float:
         """
-        Return the value of timing point density factor of the chart.
-        If the chart does not define a density factor, return 1.0.
+        Return the value of timing point density factor of the chart. If the chart
+        does not define a density factor, return 1.0.
         """
         return float(self.header_dict.get(AffToken.Keyword.timing_point_density_factor, 1.0))
 
@@ -105,7 +109,7 @@ class Chart(object):
             search_in_timing_group: bool = False,
             exclude_noinput: bool = False,
     ) -> Iterator[_T]:
-        """Return a list of commands of the given type."""
+        """Return an iterator of commands of the given type."""
         if type_ == ArcTap:
             list_of_arctap_list = (arc.arctap_list for arc in self.command_list if isinstance(arc, Arc))
             list_in_chart = chain(*list_of_arctap_list)
@@ -129,7 +133,7 @@ class Chart(object):
         return list_in_chart
 
     def get_long_note_combo(self, note_list: Iterable['LongNote']) -> int:
-        """Return the total combo of the LongNote (Hold or Arc)."""
+        """Return the total combo of given LongNote (Hold or Arc)."""
         density_factor = self.get_density_factor()
         result = 0
 
@@ -167,15 +171,18 @@ class Chart(object):
         return combo_in_chart + combo_in_timing_group
 
     def get_interval(self) -> tuple[int, int]:
-        """Return the interval (start and end time) of the chart."""
+        """Return the start and end time of the chart."""
         return (
             min(_.get_interval()[0] for _ in self.command_list),
             max(_.get_interval()[1] for _ in self.command_list),
         )
 
     def get_bpm_proportion(self) -> dict[float, float]:
-        """Return the proportion of BPMs in the chart. Ignore the bpm changes in timing group."""
-        result: dict[float, Union[float, int]] = {}  # (BPM: Proportion)
+        """
+        Return the proportion of BPMs in the chart. Ignore the bpm changes in
+        timing group. Using dict as return values (k:v = BPM:Proportion)
+        """
+        result: dict[float, Union[float, int]] = {}
         timing_list = self._sorted_timing_list
         timing_position_list = [_.t for _ in timing_list]
         timing_value_list = (_.bpm for _ in timing_list)
@@ -190,11 +197,11 @@ class Chart(object):
         return result
 
     def get_sorted_timing_list(self) -> list['Timing']:
-        """Return the sorted list of Timing."""
+        """Return the sorted list of Timing, ignore the ones in timing groups."""
         return self._sorted_timing_list
 
     def get_end_time(self) -> int:
-        """Return the duration of the chart."""
+        """Return the end time of the chart."""
         return max(_.get_interval()[1] for _ in self.command_list)
 
     def syntax_check(self) -> bool:
@@ -542,11 +549,15 @@ class SceneControl(Control):
 
 
 class TimingGroup(Chart, Control):
-    """Use the internal independent timing statements to control Notes and Controls within the group."""
+    """
+    Use the internal independent timing statements to control Notes and Controls
+    within the group. TimingGroup is usually considered as a Chart without headers,
+    so many features of the Chart can be used in TimingGroup as well.
+    """
 
     def __init__(self, type_list: list[str], command_list: list[Command]):
         self.type_list = type_list
-        super().__init__({}, command_list)  # TimingGroup is a Chart without headers
+        super().__init__({}, command_list)
 
     def __repr__(self):
         literal_type = f', type: {" ".join(self.type_list)}' if self.type_list else ''
@@ -566,8 +577,8 @@ class TimingGroup(Chart, Control):
 
     def get_total_combo(self) -> int:
         """
-        Return the total combo in this timing group.
-        Return 0 if 'type_list' contains 'noinput'.
+        Return the total combo in this timing group. Return 0 if 'type_list'
+        contains 'noinput'.
         """
         return 0 if 'noinput' in self.type_list else super().get_total_combo()
 
@@ -578,21 +589,26 @@ class TimingGroup(Chart, Control):
             exclude_noinput: bool = False,
             chart_duration: Optional[int] = None
     ) -> Iterator[_T]:
+        """
+        Overrides Chart.get_command_list_for_type(), Return an iterator of commands
+        of the given type in the TimingGroup. Abandoning this TimingGroup if its
+        'type_list' contains 'noinput' and it exceeds the chart max duration.
+        """
         if 'noinput' in self.type_list and (
                 exclude_noinput
                 or chart_duration and chart_duration < self.get_end_time()
-        ):  # abandon this timing group if its 'type_list' contains 'noinput' and it exceeds the chart duration
+        ):
             yield from ()
         return super().get_command_list_for_type(type_, search_in_timing_group, exclude_noinput)
 
     def get_interval(self) -> tuple[int, int]:
         """
-        Return the interval (start and end time) of this timing group.
-        Return (0, 0) if 'type_list' contains 'noinput' so that timing groups
-        with the 'noinput' property would NOT affect the chart duration.
+        Return the start and end time of this timing group. Return (0, 0) if its
+        'type_list' contains 'noinput' so that TimingGroups with the 'noinput'
+        property would NOT affect the chart duration (see Aegleseeker FTR).
         """
         return (0, 0) if 'noinput' in self.type_list else super().get_interval()
 
     def sub_command_syntax_check(self) -> Iterator[tuple[Command, bool]]:
-        """Check the syntax of each subcommand (Note and Control) within the group individually."""
+        """Check the syntax of each subcommand within the TimingGroup individually."""
         return ((sub_command, sub_command.syntax_check()) for sub_command in self.command_list)
