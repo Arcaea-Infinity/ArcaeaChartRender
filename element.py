@@ -158,16 +158,29 @@ class Chart(object):
 
     def get_total_combo(self) -> int:
         """Return the total combo of the chart."""
-        combo_in_chart = sum([
-            len_iter(self.get_command_list_for_type(Tap)),  # Tap
-            len_iter(self.get_command_list_for_type(ArcTap)),  # ArcTap
-            self.get_long_note_combo(self.get_command_list_for_type(Hold)),  # Hold
-            self.get_long_note_combo(self._return_connected_arc_list()),  # Arc
+        return sum([
+            self.get_combo_of(Tap),
+            self.get_combo_of(ArcTap),
+            self.get_combo_of(Hold),
+            self.get_combo_of(Arc),
         ])
+
+    def get_combo_of(self, type_: Type['Note']):
+        """Return the combo for given note type"""
+        if type_ in [Tap, ArcTap, Flick]:
+            combo_in_chart = len_iter(self.get_command_list_for_type(type_))
+        elif type_ is Hold:
+            combo_in_chart = self.get_long_note_combo(self.get_command_list_for_type(Hold))
+        elif type_ is Arc:
+            combo_in_chart = self.get_long_note_combo(self._return_connected_arc_list())
+        else:
+            raise TypeError(f'Unsupported note type: {type_}')
+
         combo_in_timing_group = sum(
-            control.get_total_combo()
+            control.get_combo_of(type_)
             for control in self.command_list if isinstance(control, TimingGroup)
         )
+
         return combo_in_chart + combo_in_timing_group
 
     def get_interval(self) -> tuple[int, int]:
@@ -306,10 +319,10 @@ class Arc(LongNote):
             else:
                 literal_arctap_list = ''
             return (
-                f'[{self.t1} -> {self.t2} Skyline] {self.has_head} {pos}'
+                f'[{self.t1} -> {self.t2} Skyline] {pos}'
                 f'{literal_arctap_list}'
             )
-        return f'[{self.t1} -> {self.t2} {self.color} Arc] {self.has_head} {pos}'
+        return f'[{self.t1} -> {self.t2} {self.color} Arc] {pos}'
 
     def __eq__(self, other):
         return all([
@@ -575,12 +588,12 @@ class TimingGroup(Chart, Control):
             all(sub_command.syntax_check() for sub_command in self.command_list)
         ])
 
-    def get_total_combo(self) -> int:
+    def get_combo_of(self, type_: Type['Note']):
         """
-        Return the total combo in this timing group. Return 0 if 'type_list'
-        contains 'noinput'.
+        Return the combo for given note type in this timing group.
+        Return 0 if 'type_list' contains 'noinput'.
         """
-        return 0 if 'noinput' in self.type_list else super().get_total_combo()
+        return 0 if 'noinput' in self.type_list else super().get_combo_of(type_)
 
     def get_command_list_for_type(
             self,
