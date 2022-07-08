@@ -40,7 +40,11 @@ class AffToken(object):
             straight = 's'
             sine_in = 'si'
             sine_out = 'so'
-            all = 'b s si so sisi soso siso sosi'.split()
+            sine_in_in = 'sisi'
+            sine_out_out = 'soso'
+            sine_in_out = 'siso'
+            sine_out_in = 'sosi'
+            all = [bezier, straight, sine_in, sine_out, sine_in_in, sine_out_out, sine_in_out, sine_out_in]
 
         class Camera(object):
             cubic_in = 'qi'
