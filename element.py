@@ -48,22 +48,28 @@ class Chart(object):
     def __init__(self, header_dict: dict, command_list: list['Command']):
         self.header_dict = header_dict
         self.command_list = command_list
-        self._sorted_timing_list = sorted(
-            self.get_command_list_for_type(Timing),
-            key=lambda _: _.t
-        )  # ignore the ones in timing groups
+
+        self.end_time = max(_.get_interval()[1] for _ in self.command_list)
+        # will ignore the Timings in timing groups
+        self.sorted_timing_list = sorted(self.get_command_list_for_type(Timing), key=lambda _: _.t)
+        self.timing_position_list = [_.t for _ in self.sorted_timing_list] + [self.end_time]
+        self.timing_value_list = [_.bpm for _ in self.sorted_timing_list]
+        self.timing_beats_list = [_.beats for _ in self.sorted_timing_list]
+        # the value of timing point density factor of the chart
+        # if the chart does not define a density factor, then density_factor = 1.0
+        self.density_factor = float(self.header_dict.get(AffToken.Keyword.timing_point_density_factor, 1.0))
 
     def _get_note_bpm(self, note: 'Note') -> 'Timing':
         """Returns which bpm (Timing) interval the note is in."""
         start_time = note.get_interval()[0]
         i = 0
-        while i < len(self._sorted_timing_list) - 1:
-            if self._sorted_timing_list[i].t <= start_time < self._sorted_timing_list[i + 1].t:
+        while i < len(self.sorted_timing_list) - 1:
+            if self.sorted_timing_list[i].t <= start_time < self.sorted_timing_list[i + 1].t:
                 break
             i += 1
-        return self._sorted_timing_list[i]
+        return self.sorted_timing_list[i]
 
-    def _return_connected_arc_list(self) -> list['Arc']:
+    def _get_connected_arc_list(self) -> list['Arc']:
         """
         Analyze the first and last cases of all Arcs and return a list of Arcs
         after assigning the correct value to 'has_head' attribute. These Arcs
@@ -96,13 +102,6 @@ class Chart(object):
 
         return arc_list_start_sorted
 
-    def get_density_factor(self) -> float:
-        """
-        Return the value of timing point density factor of the chart. If the chart
-        does not define a density factor, return 1.0.
-        """
-        return float(self.header_dict.get(AffToken.Keyword.timing_point_density_factor, 1.0))
-
     def get_command_list_for_type(
             self,
             type_: Type[_T],
@@ -122,7 +121,7 @@ class Chart(object):
                     type_,
                     search_in_timing_group,
                     exclude_noinput,
-                    self.get_end_time()
+                    self.end_time
                 )
                 for timing_group in self.get_command_list_for_type(TimingGroup)
             )
@@ -134,7 +133,7 @@ class Chart(object):
 
     def get_long_note_combo(self, note_list: Iterable['LongNote']) -> int:
         """Return the total combo of given LongNote (Hold or Arc)."""
-        density_factor = self.get_density_factor()
+        density_factor = self.density_factor
         result = 0
 
         for long_note in note_list:
@@ -172,7 +171,7 @@ class Chart(object):
         elif type_ is Hold:
             combo_in_chart = self.get_long_note_combo(self.get_command_list_for_type(Hold))
         elif type_ is Arc:
-            combo_in_chart = self.get_long_note_combo(self._return_connected_arc_list())
+            combo_in_chart = self.get_long_note_combo(self._get_connected_arc_list())
         else:
             raise TypeError(f'Unsupported note type: {type_}')
 
@@ -196,26 +195,15 @@ class Chart(object):
         timing group. Using dict as return values (k:v = BPM:Proportion)
         """
         result: dict[float, Union[float, int]] = {}
-        timing_list = self._sorted_timing_list
-        timing_position_list = [_.t for _ in timing_list]
-        timing_value_list = (_.bpm for _ in timing_list)
+        timing_position_list = self.timing_position_list
         duration = self.get_interval()[1]
-        timing_position_list.append(duration)
 
-        for index, bpm in enumerate(timing_value_list):
+        for index, bpm in enumerate(self.timing_value_list):
             if bpm not in result:
                 result[bpm] = 0
             result[bpm] += (timing_position_list[index + 1] - timing_position_list[index]) / duration
 
         return result
-
-    def get_sorted_timing_list(self) -> list['Timing']:
-        """Return the sorted list of Timing, ignore the ones in timing groups."""
-        return self._sorted_timing_list
-
-    def get_end_time(self) -> int:
-        """Return the end time of the chart."""
-        return max(_.get_interval()[1] for _ in self.command_list)
 
     def syntax_check(self) -> bool:
         """Check the syntax of the chart as a whole."""
@@ -609,7 +597,7 @@ class TimingGroup(Chart, Control):
         """
         if 'noinput' in self.type_list and (
                 exclude_noinput
-                or chart_duration and chart_duration < self.get_end_time()
+                or chart_duration and chart_duration < self.end_time
         ):
             yield from ()
         return super().get_command_list_for_type(type_, search_in_timing_group, exclude_noinput)
