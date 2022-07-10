@@ -74,6 +74,8 @@ class Chart(object):
         Analyze the first and last cases of all Arcs and return a list of Arcs
         after assigning the correct value to 'has_head' attribute. These Arcs
         do NOT include the ones in timing groups.
+
+        https://github.com/Arcaea-Infinity/Aff2Preview/blob/main/Aff2Preview/AffTools/AffAnalyzer/Analyzer.cs
         """
         arc_list = filter(
             lambda _: not _.is_skyline,
@@ -600,7 +602,7 @@ class TimingGroup(Chart, Control):
                 or chart_duration and chart_duration < self.end_time
         ):
             yield from ()
-        return super().get_command_list_for_type(type_, search_in_timing_group, exclude_noinput)
+        yield from super().get_command_list_for_type(type_, search_in_timing_group, exclude_noinput)
 
     def get_interval(self) -> tuple[int, int]:
         """
