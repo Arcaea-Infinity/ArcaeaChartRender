@@ -43,6 +43,7 @@ class Song(BaseModel):
     audioPreviewEnd: int
     side: int
     bg: str
+    remote_dl: Optional[bool]
     date: int
     version: str
     difficulties: list[Difficulty]
