@@ -26,3 +26,8 @@ def len_iter(iterable: Iterable) -> int:
     counter = count()
     deque(zip(iterable, counter), maxlen=0)
     return next(counter)
+
+
+def ms_to_sexagesimal(t: int) -> str:
+    """Convert milliseconds to sexagesimal notation."""
+    return f'{t // 60000}:{(t % 60000) // 1000:02d}.{(t % 1000) // 100:0d}'  # 0:00.0
