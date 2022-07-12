@@ -330,10 +330,9 @@ class Render(object):
         """Add comment for bpm change to the left of the chart """
         draw = ImageDraw.Draw(self.im)
         for timing in self._chart.get_command_list_for_type(Timing):
-            text_x = width_track - width_chart - width_gap * 2
             text_t = Coordinate.from_cartesian(timing.t // resize) - default_text_size
             draw.text(
-                (text_x, text_t),
+                (default_text_x, text_t),
                 str(timing.bpm),
                 fill=self.theme.text_bpm_change_color,
                 font=self.theme.font_Exo_SemiBold_20, anchor='rs'
