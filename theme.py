@@ -42,9 +42,9 @@ class BaseTheme(ABC):
     # for song title at text area
     font_Kazesawa_Regular_54 = ImageFont.truetype('./assets/Fonts/Kazesawa-Regular.ttf', 54)
     # for artist / chart designer / jacket designer at text area
-    font_Kazesawa_Regular_40 = ImageFont.truetype('./path/to/SourceHanMonoSC-Regular.otf', 40)
+    font_SourceHanMonoSC_Regular_40 = ImageFont.truetype('./path/to/SourceHanMonoSC-Regular.otf', 40)
     # for statistics at text area
-    font_Kazesawa_Regular_34 = ImageFont.truetype('./path/to/SourceHanMonoSC-Regular.otf', 34)
+    font_SourceHanMonoSC_Regular_34 = ImageFont.truetype('./path/to/SourceHanMonoSC-Regular.otf', 34)
 
 
 class LightTheme(BaseTheme):

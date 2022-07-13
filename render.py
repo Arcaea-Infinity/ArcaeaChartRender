@@ -407,7 +407,7 @@ class Render(object):
             (width_cover + margin_bg * 2, self.im.size[1] - height_cover + 54),  # 54 is song title font size
             f'Artist: {self._song.artist}\nChart Designer: {chart_designer}\nJacket Designer: {jacket_designer}',
             fill=self.theme.text_other_info_color,
-            font=self.theme.font_Kazesawa_Regular_40,
+            font=self.theme.font_SourceHanMonoSC_Regular_40,
         )
         # combo / tap / arctap / hold / arc
         text = dedent(f'''\
@@ -421,7 +421,7 @@ class Render(object):
             (self.im.size[0] // 2, self.im.size[1] - height_cover - margin_bg // 2),
             text,
             fill=self.theme.text_other_info_color,
-            font=self.theme.font_Kazesawa_Regular_34,
+            font=self.theme.font_SourceHanMonoSC_Regular_34,
         )
         # duration / BPM / base BPM / difficulty / constant
         literal_difficulty = ['Past', 'Present', 'Future', 'Beyond'][self._difficulty]
@@ -436,7 +436,7 @@ class Render(object):
             (self.im.size[0] // 5 * 3, self.im.size[1] - height_cover - margin_bg // 2),
             text,
             fill=self.theme.text_other_info_color,
-            font=self.theme.font_Kazesawa_Regular_34,
+            font=self.theme.font_SourceHanMonoSC_Regular_34,
         )
 
     def save(self, path: str):
