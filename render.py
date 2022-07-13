@@ -230,7 +230,7 @@ class Render(object):
                     self.im.alpha_composite(im_line_bar_small, (x, Coordinate.from_cartesian(t, width_gap)))
 
     def _draw_track_split_line(self):
-        """Draw 3 split lines and 2 edge lines on the track to separate each lane's area."""
+        """Draw 3 split lines on the track to separate each lane's area."""
         split_line = Image.new('RGBA', (width_gap, height_track), self.theme.track_split_line_color)
         for i in range(1, 4):
             x = width_track - width_chart + width_chart_edge + width_gap * (3 * i - 1) + width_note * i
