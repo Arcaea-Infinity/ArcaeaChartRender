@@ -1,3 +1,5 @@
+__all__ = ['Render']
+
 from math import ceil, sin, cos, pi
 from textwrap import dedent
 from typing import Optional, Iterator

@@ -129,4 +129,4 @@ dmypy.json
 .idea/
 
 # res
-OpenArcaeaArts/
+theme.local.py
