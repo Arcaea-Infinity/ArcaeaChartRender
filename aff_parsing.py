@@ -1,6 +1,8 @@
 """
 Abstract::
 
+Compose your Arcaea chart by Python DSL (Domain-Specific Language).
+
 This file provides the tools needed for the initial plain text parsing of the
 Arcaea chart (aff files). It mainly uses the pyparsing module for static parsing
 and converts all parsing results to ParserElement instances of this module.

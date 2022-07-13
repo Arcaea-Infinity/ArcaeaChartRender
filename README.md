@@ -9,6 +9,8 @@ Render an Arcaea Chart simply.
 
 Before using, you need to edit [`theme.py`](./theme.py) to locate assets file.
 
+If a property of `BaseTheme` is inherited by one of its subclasses (e.g. `LightTheme`), you should modify the property on its subclass. If the property is not inherited, then you should modify it directly on `BaseTheme`.
+
 | name                              | file                                                                                                                                |
 |-----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
 | `font_Exo_SemiBold_XX`            | `Exo-SemiBold.ttf`                                                                                                                  |
@@ -23,16 +25,13 @@ Before using, you need to edit [`theme.py`](./theme.py) to locate assets file.
  > ⚠ Note: <br> This repo does **NOT** provide these assets files, you need to obtain them by yourself. It is recommended to get them at [Arcaea-Infinity/OpenArcaeaArts](https://github.com/Arcaea-Infinity/OpenArcaeaArts) (Licensed under `CC BY-NC`).
 
 ```python
-from ArcaeaChartRender.model import Song
 from ArcaeaChartRender.render import Render
 from ArcaeaChartRender.utils import fetch_song_info
-
-song = fetch_song_info('./songs/songlist', 'panicbounceattack')
 
 render = Render(
     aff_path='./songs/panicbounceattack/2.aff',
     cover_path='./songs/panicbounceattacki/base.jpg',
-    song=Song(**song),
+    song=fetch_song_info('./songs/songlist', 'panicbounceattack'),
     difficulty=2,
     constant=7.0,
 )
@@ -85,7 +84,7 @@ print(chart.get_interval())
 
 ### aff plain text parsing
 
-Easily convert plain text of aff file to `dict` or `list`.
+Compose your Arcaea chart by Python DSL, and easily convert plain text of aff file to `dict` or `list`.
 
 See [`aff_parsing.py`](./aff_parsing.py) for more information.
 
