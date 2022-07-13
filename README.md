@@ -5,6 +5,23 @@
 
 Render an Arcaea Chart simply.
 
+#### change your theme
+
+Before using, you need to edit [`theme.py`](./theme.py) to locate assets file.
+
+| name                              | file                                                                                                                                |
+|-----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| `font_Exo_SemiBold_XX`            | `Exo-SemiBold.ttf`                                                                                                                  |
+| `font_Kazesawa_Regular_XX`        | `Kazesawa-Regular.ttf`                                                                                                              |
+| `font_SourceHanMonoSC_Regular_XX` | [`SourceHanMonoSC-Regular.otf`](https://github.com/adobe-fonts/source-han-mono/blob/master/Regular/OTC/SourceHanMonoSC-Regular.otf) |
+| `tile_path`                       | `track.png` and `track_dark.png`                                                                                                    |
+| `tap_path`                        | `note.png` and `note_dark.png`                                                                                                      |
+| `hold_path`                       | `note_hold.png` and `note_hold_dark.png`                                                                                            |
+| `arctap_path`                     | `wall.png`                                                                                                                          |
+| `default_bg_path`                 | `base_light.jpg` and `base_conflict.jpg`                                                                                            |
+
+ > ⚠ Note: <br> This repo does **NOT** provide these assets files, you need to obtain them by yourself. It is recommended to get them at [Arcaea-Infinity/OpenArcaeaArts](https://github.com/Arcaea-Infinity/OpenArcaeaArts) (Licensed under `CC BY-NC`).
+
 ```python
 from ArcaeaChartRender.model import Song
 from ArcaeaChartRender.render import Render
