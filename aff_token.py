@@ -62,7 +62,12 @@ class AffToken(object):
             arcahv_distort = 'arcahvdistort'
             arcahv_debris = 'arcahvdebris'
             hide_group = 'hidegroup'
-            all = [track_hide, track_show, track_display, redline, arcahv_distort, arcahv_debris, hide_group]
+            enwidenlanes = 'enwidenlanes'
+            enwidencamera = 'enwidencamera'
+            all = [
+                track_hide, track_show, track_display, redline, arcahv_distort, arcahv_debris, hide_group,
+                enwidenlanes, enwidencamera
+            ]
 
         class TimingGroup(object):
             no_input = 'noinput'
