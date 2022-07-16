@@ -129,4 +129,5 @@ dmypy.json
 .idea/
 
 # res
-theme.local.py
+theme_local.py
+render_test.py
