@@ -226,6 +226,13 @@ class Render(object):
                         fill=self.theme.text_bar_time_color,
                         anchor='rs'
                     )  # draw time elapsed
+                    draw.text(
+                        (default_text_x, Coordinate.from_cartesian(t) - default_text_size),
+                        str(self._chart.get_total_combo_before(t * resize)),
+                        font=self.theme.font_Exo_SemiBold_20,
+                        fill=self.theme.text_bar_time_color,
+                        anchor='rs'
+                    )  # draw combo before this bar
                 else:  # draw lines for smaller beats
                     self.im.alpha_composite(im_line_bar_small, (x, Coordinate.from_cartesian(t, width_gap)))
 
@@ -332,7 +339,7 @@ class Render(object):
         """Add comment for bpm change to the left of the chart """
         draw = ImageDraw.Draw(self.im)
         for timing in self._chart.get_command_list_for_type(Timing):
-            text_t = Coordinate.from_cartesian(timing.t // resize) - default_text_size
+            text_t = Coordinate.from_cartesian(timing.t // resize) - 2 * default_text_size
             draw.text(
                 (default_text_x, text_t),
                 str(timing.bpm),

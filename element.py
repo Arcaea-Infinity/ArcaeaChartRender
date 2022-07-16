@@ -58,6 +58,12 @@ class Chart(object):
         # the value of timing point density factor of the chart
         # if the chart does not define a density factor, then density_factor = 1.0
         self.density_factor = float(self.header_dict.get(AffToken.Keyword.timing_point_density_factor, 1.0))
+        # cache these lists for calculate combo
+        self._connected_arc_list = self._get_connected_arc_list()
+        self._hold_list = list(self.get_command_list_for_type(Hold, True, True))
+        self._tap_list = list(self.get_command_list_for_type(Tap, True, True))
+        self._arctap_list = list(self.get_command_list_for_type(ArcTap, True, True))
+        self._flick_list = list(self.get_command_list_for_type(Flick, True, True))
 
     def _get_note_bpm(self, note: 'Note') -> 'Timing':
         """Returns which bpm (Timing) interval the note is in."""
@@ -162,6 +168,7 @@ class Chart(object):
         return sum([
             self.get_combo_of(Tap),
             self.get_combo_of(ArcTap),
+            self.get_combo_of(Flick),
             self.get_combo_of(Hold),
             self.get_combo_of(Arc),
         ])
@@ -173,7 +180,7 @@ class Chart(object):
         elif type_ is Hold:
             combo_in_chart = self.get_long_note_combo(self.get_command_list_for_type(Hold))
         elif type_ is Arc:
-            combo_in_chart = self.get_long_note_combo(self._get_connected_arc_list())
+            combo_in_chart = self.get_long_note_combo(self._connected_arc_list)
         else:
             raise TypeError(f'Unsupported note type: {type_}')
 
@@ -183,6 +190,24 @@ class Chart(object):
         )
 
         return combo_in_chart + combo_in_timing_group
+
+    def get_total_combo_before(self, t: int) -> int:
+        """Return the total combo before given time."""
+        result = 0
+        # single note
+        result += sum(
+            1
+            for note in chain(self._tap_list, self._arctap_list, self._flick_list)
+            if note.get_interval()[0] <= t
+        )
+        # long note
+        result += sum(
+            (min(t, note.t2) - note.t1) / (note.t2 - note.t1) * self.get_long_note_combo([note])
+            for note in chain(self._hold_list, self._connected_arc_list)
+            if note.t1 < t
+        )
+
+        return int(result)
 
     def get_interval(self) -> tuple[int, int]:
         """Return the start and end time of the chart."""

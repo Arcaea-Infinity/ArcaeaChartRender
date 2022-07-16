@@ -101,7 +101,7 @@ print(command.parse_string(content).as_list())
 ## TODO
 
  - [ ] beautify text style (at text area)
- - [ ] add support for segmented combo count (per bar)
+ - [x] add support for segmented combo count (per bar)
  - [ ] add support for custom background (when `Song.bg` field is not `None`)
  - [ ] other chart statistics (density, multi-finger, crossed hand, etc.)
 
