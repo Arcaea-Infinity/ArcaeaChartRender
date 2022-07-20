@@ -26,8 +26,8 @@ class BaseTheme(ABC):
     default_transparency_range = (100, 220)
 
     transparent_color = (255, 255, 255, 0)
-    arc_red_color = (255, 105, 180)
-    arc_blue_color = (49, 218, 231)
+    arc_red_color = (185, 118, 180)  # another: (255, 105, 180)
+    arc_blue_color = (76, 141, 184)  # another: (49, 218, 231)
     arc_green_color = (124, 252, 0)
     arc_alpha = (0, 0, 0)  # for arc whose color is Color.Alpha (like PRAGMATISM BYD)
     arc_skyline_color = (144, 138, 144)
