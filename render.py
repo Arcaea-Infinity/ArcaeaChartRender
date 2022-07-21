@@ -32,7 +32,7 @@ default_text_x = width_track - width_chart - width_gap * 2  # x-coordinate for c
 default_text_size = 20
 
 # performance configuration
-# Warning: Modifying sampling rate will affect the overall plotting speed to a large extent.
+# Warning: Modifying sampling rate will significantly affect the overall plotting speed.
 arc_sampling_rate = 10
 resize = 4  # 1/4 of the original assets size
 
@@ -169,11 +169,7 @@ class Render(object):
         self._render()
 
     def _render(self):
-        if self._song.side == 0:
-            self.theme = LightTheme
-        else:
-            self.theme = ConflictTheme
-
+        self.theme = LightTheme if self._song.side == 0 else ConflictTheme
         self.im = Image.new('RGBA', (width_track + additional_canvas_width, height_track), self.theme.transparent_color)
 
         self._draw_track_tile()
