@@ -193,7 +193,7 @@ class Render(object):
                 x = width_track - width_chart + width_chart_edge
                 t = int(timing_position_list[index] + i * bar_duration) // resize
                 if i % timing_beats_list[index] == 0:
-                    self.im.alpha_composite(im_line_bar, (x, Coordinate.from_cartesian(t, width_gap)))
+                    self.im.alpha_composite(im_line_bar, (x, Coordinate.from_cartesian(self.h, t, width_gap)))
                     draw.text(
                         (default_text_x, Coordinate.from_cartesian(self.h, t)),
                         ms_to_sexagesimal(t * resize),
@@ -209,7 +209,7 @@ class Render(object):
                         anchor='rs'
                     )  # draw combo before this bar
                 else:  # draw lines for smaller beats
-                    self.im.alpha_composite(im_line_bar_small, (x, Coordinate.from_cartesian(t, width_gap)))
+                    self.im.alpha_composite(im_line_bar_small, (x, Coordinate.from_cartesian(self.h, t, width_gap)))
 
     def _draw_track_split_line(self):
         """Draw 3 split lines on the track to separate each lane's area."""
@@ -247,7 +247,7 @@ class Render(object):
             lane = tap.lane
             x = width_track - width_chart + width_chart_edge + width_gap * (3 * lane - 2) + width_note * (lane - 1)
             t = tap.t // resize
-            self.im.alpha_composite(im_tap, (x, Coordinate.from_cartesian(t, height_note)))
+            self.im.alpha_composite(im_tap, (x, Coordinate.from_cartesian(self.h, t, height_note)))
 
     def _draw_note_hold(self):
         """Draw all Holds in the chart."""
@@ -260,7 +260,7 @@ class Render(object):
             im_stretched_hold = im_hold.resize((width_hold, stretched_height_hold))
             x = width_track - width_chart + width_chart_edge + width_gap * (3 * lane - 2) + width_note * (lane - 1)
             t = hold.t1 // resize
-            self.im.alpha_composite(im_stretched_hold, (x, Coordinate.from_cartesian(t, stretched_height_hold)))
+            self.im.alpha_composite(im_stretched_hold, (x, Coordinate.from_cartesian(self.h, t, stretched_height_hold)))
 
     def _draw_arc_tap(self):
         """Draw all ArcTaps on skyline."""
@@ -272,7 +272,10 @@ class Render(object):
                 x, z = Coordinate.from_normalized(sample.get_coordinate_tuple(arctap.tn))
                 t = arctap.tn // resize
                 im_arctap.putalpha(z)
-                self.im.alpha_composite(im_arctap, (x - width_arctap // 2, Coordinate.from_cartesian(t, height_arctap)))
+                self.im.alpha_composite(
+                    im_arctap,
+                    (x - width_arctap // 2, Coordinate.from_cartesian(self.h, t, height_arctap))
+                )
 
     def _draw_arc(self):
         """(use opencv2) Draw all Arcs in the chart. """
