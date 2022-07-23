@@ -21,6 +21,11 @@ class SourceLocalized(BaseModel):
     zh_Hant: Optional[str] = Field(str, alias='zh-Hant')
 
 
+class BgDayNight(BaseModel):
+    day: str
+    night: str
+
+
 class Difficulty(BaseModel):
     ratingClass: int
     chartDesigner: str
@@ -45,6 +50,8 @@ class Song(BaseModel):
     audioPreviewEnd: int
     side: int
     bg: str
+    bg_daynight: Optional[BgDayNight]
+    bg_inverse: Optional[str]
     remote_dl: Optional[bool]
     date: int
     version: str

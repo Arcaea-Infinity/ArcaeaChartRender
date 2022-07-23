@@ -33,6 +33,7 @@ If a property of `BaseTheme` is inherited by one of its subclasses (e.g. `LightT
 | `hold_path`                       | `note_hold.png` and `note_hold_dark.png`                                                                                            |
 | `arctap_path`                     | `wall.png`                                                                                                                          |
 | `default_bg_path`                 | `base_light.jpg` and `base_conflict.jpg`                                                                                            |
+| `custom_bg_dir_path `             | put your custom background here if `bg` field has been defined in songlist                                                          |
 
  > ⚠ Note: <br> This repo does **NOT** provide these assets files, you need to obtain them by yourself. It is recommended to get them at [Arcaea-Infinity/OpenArcaeaArts](https://github.com/Arcaea-Infinity/OpenArcaeaArts) (Licensed under `CC BY-NC`).
 
@@ -169,7 +170,7 @@ print(command.parse_string(content).as_list())
 
  - [ ] beautify text style (at text area)
  - [x] add support for segmented combo count (per bar)
- - [ ] add support for custom background (when `Song.bg` field is not `None`)
+ - [x] add support for custom background (when `Song.bg` field is not `None`)
  - [ ] other chart statistics (density, multi-finger, crossed hand, etc.)
 
 ## License

@@ -42,6 +42,8 @@ class BaseTheme(ABC):
     arctap_path: str  # assets/img/wall.png
     default_bg_path: str  # assets/img/bg/base_light.jpg
 
+    custom_bg_dir_path: str = './assets/img/bg/'  # put your custom background here if bg has been defined in songlist
+
     track_split_line_color: ColorTuple  # 3 vertical split lines to divide track into 4 lanes
     line_bar_color: ColorTuple  # split line of bar
     line_bar_small_color: ColorTuple  # split line of small bar (like quarter note)

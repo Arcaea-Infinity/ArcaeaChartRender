@@ -1,5 +1,6 @@
 __all__ = ['Render']
 
+import os
 from math import ceil, sin, cos, pi
 from textwrap import dedent
 from typing import Optional, Iterator
@@ -346,7 +347,10 @@ class Render(object):
         width_chart_overlay, height_chart_overlay = self.im.size[0] + margin_bg, self.im.size[1] + margin_bg
         width_text_overlay, height_text_overlay = self.im.size[0] + margin_bg, width_cover
 
-        im_bg = Image.open(self.theme.default_bg_path).convert('RGBA')
+        bg_path = os.path.join(self.theme.custom_bg_dir_path, f'{self._song.bg}.jpg')
+        if not os.path.isfile(bg_path):
+            bg_path = self.theme.default_bg_path
+        im_bg = Image.open(bg_path).convert('RGBA')
         im_chart_overlay = Image.new('RGBA', (width_chart_overlay, height_chart_overlay), self.theme.overlay_color)
         im_text_overlay = Image.new('RGBA', (width_text_overlay, height_text_overlay), self.theme.overlay_color)
 
