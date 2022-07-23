@@ -1,13 +1,25 @@
 # <p align="center">ArcaeaChartRender
 <p align="center">Another chart previewing library for Arcaea.
 
+## requirements
+
+ - pydantic~=1.9.1
+ - Pillow~=9.1.1
+ - opencv-python~=4.5.5.64
+ - numpy~=1.23.0
+ - pyparsing~=3.0.9
+
+```bash
+pip install -r requirements.txt
+```
+
 ## Usage
 
 Render an Arcaea Chart simply.
 
-#### change your theme
+### change your theme
 
-Before using, you need to edit [`theme.py`](./theme.py) to locate assets file.
+Before using, you need to copy and rename [`theme.py`](./theme.py) to `theme_local.py`, and edit `theme_local.py` to locate assets file.
 
 If a property of `BaseTheme` is inherited by one of its subclasses (e.g. `LightTheme`), you should modify the property on its subclass. If the property is not inherited, then you should modify it directly on `BaseTheme`.
 
@@ -24,6 +36,10 @@ If a property of `BaseTheme` is inherited by one of its subclasses (e.g. `LightT
 
  > ⚠ Note: <br> This repo does **NOT** provide these assets files, you need to obtain them by yourself. It is recommended to get them at [Arcaea-Infinity/OpenArcaeaArts](https://github.com/Arcaea-Infinity/OpenArcaeaArts) (Licensed under `CC BY-NC`).
 
+### render chart with a `songlist`
+
+When rendering the official chart, you deserve to have a `songlist` from which you can build the song metadata.
+
 ```python
 from ArcaeaChartRender.render import Render
 from ArcaeaChartRender.utils import fetch_song_info
@@ -32,6 +48,57 @@ render = Render(
     aff_path='./songs/panicbounceattack/2.aff',
     cover_path='./songs/panicbounceattacki/base.jpg',
     song=fetch_song_info('./songs/songlist', 'panicbounceattack'),
+    difficulty=2,
+    constant=7.0,
+)
+
+render.show()
+render.save('panicbounceattack_2.png')
+```
+
+### render chart without `songlist`
+
+In some cases, you may not be conscious of creating a `songlist` (e.g. fan-made chart), then you can use the `Song` model instead of the `fetch_song_info()` function.
+
+```python
+from ArcaeaChartRender.render import Render
+from ArcaeaChartRender.utils import fetch_song_info
+from ArcaeaChartRender.model import Song
+
+my_song = Song(
+    **{
+        "id": "panicbounceattack",
+        "idx": 0,
+        "title_localized": {
+            "en": "PANIC! BOUNCE!! ATTACK!!!"
+        },
+        "artist": "3R2 feat. ptar124",
+        "bpm": "248",
+        "bpm_base": 248,
+        "set": "base",
+        "purchase": "",
+        "audioPreview": 94798,
+        "audioPreviewEnd": 110250,
+        "side": 0,
+        "bg": "shiawase2",
+        "version": "3.12.6",
+        "date": 1649603401,
+        "difficulties": [
+            {
+                "ratingClass": 2,
+                "chartDesigner": "Rabi-MisakaChan",
+                "jacketDesigner": "Misaka12456\naffected by\nYumemochi",
+                "rating": 10,
+                "ratingPlus": True
+            }
+        ]
+    }
+)
+
+render = Render(
+    aff_path='./songs/panicbounceattack/2.aff',
+    cover_path='./songs/panicbounceattacki/base.jpg',
+    song=my_song,
     difficulty=2,
     constant=7.0,
 )
