@@ -164,6 +164,7 @@ class Render(object):
         self._post_processing_background()
         self._post_processing_song_cover()
         self._post_processing_song_meta()
+        self._post_processing_add_slogan()
 
     def _draw_track_tile(self):
         """Tile the background image (track.png) to fill the track."""
@@ -421,6 +422,17 @@ class Render(object):
             text,
             fill=self.theme.text_other_info_color,
             font=self.theme.font_SourceHanMonoSC_Regular_34,
+        )
+
+    def _post_processing_add_slogan(self):
+        """Add slogan to the bottom right corner of the image."""
+        draw = ImageDraw.Draw(self.im)
+        draw.text(
+            (self.im.size[0] - margin_bg, self.im.size[1] - margin_bg),
+            self.theme.slogan,
+            fill=self.theme.text_other_info_color,
+            font=self.theme.font_Exo_SemiBold_40,
+            anchor='rs'
         )
 
     def save(self, path: str):
