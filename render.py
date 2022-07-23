@@ -325,7 +325,7 @@ class Render(object):
         bpm_proportion = self._chart.get_bpm_proportion()
         main_bar_duration = 4 * 60000 / max(bpm_proportion, key=bpm_proportion.get)
         segment = int(self._chart.end_time / 10000)
-        segment_duration = self._chart.end_time / segment // main_bar_duration * main_bar_duration
+        segment_duration = (self._chart.end_time / segment // main_bar_duration or 1) * main_bar_duration
         segment_count = ceil(self._chart.end_time / segment_duration)
         segment_height = segment_duration / resize  # do not use int() here avoid accumulating errors
 
