@@ -12,7 +12,7 @@ from aff_decoder import parse_aff
 from aff_token import AffToken, Color
 from element import Tap, Arc, Hold, Timing, ArcTap
 from model import Song
-from theme import *
+from theme_local import *
 from utils import read_file, ms_to_sexagesimal
 
 # size configuration
