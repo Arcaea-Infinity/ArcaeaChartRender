@@ -1,0 +1,5 @@
+pydantic~=1.9.1
+Pillow~=9.1.1
+opencv-python~=4.5.5.64
+numpy~=1.23.0
+pyparsing~=3.0.9
