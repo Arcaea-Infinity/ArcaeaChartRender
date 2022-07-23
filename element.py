@@ -204,7 +204,7 @@ class Chart(object):
         result += sum(
             (min(t, note.t2) - note.t1) / (note.t2 - note.t1) * self.get_long_note_combo([note])
             for note in chain(self._hold_list, self._connected_arc_list)
-            if note.t1 < t
+            if t > note.t1 != note.t2
         )
 
         return int(result)
