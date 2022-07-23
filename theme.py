@@ -1,10 +1,38 @@
-__all__ = ['BaseTheme', 'LightTheme', 'ConflictTheme']
+__all__ = [
+    'BaseTheme', 'LightTheme', 'ConflictTheme',
+    'width_track', 'height_track_reserved', 'width_chart', 'height_chart', 'width_note', 'height_note',
+    'width_arctap', 'height_arctap', 'width_hold', 'height_hold',
+    'additional_canvas_width', 'margin_bg', 'width_gap', 'width_chart_edge', 'width_cover', 'height_cover',
+    'default_text_x', 'default_text_size',
+    'arc_sampling_rate', 'resize',
+]
 
 from abc import ABC
 
 from PIL import ImageFont
 
 ColorTuple = tuple[int, int, int, int]
+
+# size configuration
+width_track, height_track_reserved = (320, 250)  # the main track, including comment area (1/5) and chart area (4/5)
+width_chart, height_chart = (254, 64)  # the size of tile of the chart area
+width_note, height_note = (54, 18)  # the size of (ground) tap
+width_arctap, height_arctap = (width_note, 12)  # the size of arctap
+width_hold, height_hold = (width_note, 379)  # the size of (ground) hold, 379 is the height of resource
+
+additional_canvas_width = width_chart // 4  # to draw out-of-bounds chart (like testify BYD)
+margin_bg = additional_canvas_width // 2  # the margin of the background
+width_gap = 2  # the distance from note boundary to lane split line, also the weight of the lane split line
+width_chart_edge = 8  # the edge width of the chart area
+width_cover = height_cover = height_chart * 4 - margin_bg // 2  # the size of song cover (square)
+
+default_text_x = width_track - width_chart - width_gap * 2  # x-coordinate for comment text
+default_text_size = 20
+
+# performance configuration
+# Warning: Modifying sampling rate will significantly affect the overall plotting speed.
+arc_sampling_rate = 10
+resize = 4  # 1/4 of the original assets size
 
 
 class BaseTheme(ABC):

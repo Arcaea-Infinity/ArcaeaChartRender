@@ -15,32 +15,11 @@ from model import Song
 from theme_local import *
 from utils import read_file, ms_to_sexagesimal
 
-# size configuration
-width_track, height_track = (320, 250)  # the main track, including comment area (1/5) and chart area (4/5)
-width_chart, height_chart = (254, 64)  # the size of tile of the chart area
-width_note, height_note = (54, 18)  # the size of (ground) tap
-width_arctap, height_arctap = (width_note, 12)  # the size of arctap
-width_hold, height_hold = (width_note, 379)  # the size of (ground) hold, 379 is the height of resource
-
-additional_canvas_width = width_chart // 4  # to draw out-of-bounds chart (like testify BYD)
-margin_bg = additional_canvas_width // 2  # the margin of the background
-width_gap = 2  # the distance from note boundary to lane split line, also the weight of the lane split line
-width_chart_edge = 8  # the edge width of the chart area
-width_cover = height_cover = height_chart * 4 - margin_bg // 2  # the size of song cover (square)
-
-default_text_x = width_track - width_chart - width_gap * 2  # x-coordinate for comment text
-default_text_size = 20
-
-# performance configuration
-# Warning: Modifying sampling rate will significantly affect the overall plotting speed.
-arc_sampling_rate = 10
-resize = 4  # 1/4 of the original assets size
-
 
 class Coordinate(object):
 
     @staticmethod
-    def from_cartesian(y: int, object_height: Optional[int] = None) -> int:
+    def from_cartesian(height_track: int, y: int, object_height: Optional[int] = None) -> int:
         """
         In the Cartesian coordinate system, X is the distance from the left
         boundary and Y is the distance from the right boundary. However, in the
@@ -161,16 +140,14 @@ class Render(object):
         self._constant = constant
         self._chart = parse_aff(read_file(aff_path))
 
-        # modify the value of height_track to the desired height
-        # use '+=' instead of '=' because a section (250 px) of track has to be reserved
-        global height_track
-        height_track += self._chart.end_time // resize
+        # the final height of the chart
+        self.h = self._chart.end_time // resize + height_track_reserved
 
         self._render()
 
     def _render(self):
         self.theme = LightTheme if self._song.side == 0 else ConflictTheme
-        self.im = Image.new('RGBA', (width_track + additional_canvas_width, height_track), self.theme.transparent_color)
+        self.im = Image.new('RGBA', (width_track + additional_canvas_width, self.h), self.theme.transparent_color)
 
         self._draw_track_tile()
         self._draw_track_bar()
@@ -190,7 +167,7 @@ class Render(object):
     def _draw_track_tile(self):
         """Tile the background image (track.png) to fill the track."""
         tile = Image.open(self.theme.tile_path).convert('RGBA').resize((width_chart, height_chart))
-        for i in range(int(height_track / height_note) + 1):
+        for i in range(int(self.h / height_note) + 1):
             self.im.paste(tile, (width_track - width_chart, i * height_chart))
 
     def _draw_track_bar(self):
@@ -216,14 +193,14 @@ class Render(object):
                 if i % timing_beats_list[index] == 0:
                     self.im.alpha_composite(im_line_bar, (x, Coordinate.from_cartesian(t, width_gap)))
                     draw.text(
-                        (default_text_x, Coordinate.from_cartesian(t)),
+                        (default_text_x, Coordinate.from_cartesian(self.h, t)),
                         ms_to_sexagesimal(t * resize),
                         font=self.theme.font_Exo_SemiBold_20,
                         fill=self.theme.text_bar_time_color,
                         anchor='rs'
                     )  # draw time elapsed
                     draw.text(
-                        (default_text_x, Coordinate.from_cartesian(t) - default_text_size),
+                        (default_text_x, Coordinate.from_cartesian(self.h, t) - default_text_size),
                         str(self._chart.get_total_combo_before(t * resize)),
                         font=self.theme.font_Exo_SemiBold_20,
                         fill=self.theme.text_bar_time_color,
@@ -234,7 +211,7 @@ class Render(object):
 
     def _draw_track_split_line(self):
         """Draw 3 split lines on the track to separate each lane's area."""
-        split_line = Image.new('RGBA', (width_gap, height_track), self.theme.track_split_line_color)
+        split_line = Image.new('RGBA', (width_gap, self.h), self.theme.track_split_line_color)
         for i in range(1, 4):
             x = width_track - width_chart + width_chart_edge + width_gap * (3 * i - 1) + width_note * i
             self.im.alpha_composite(split_line, (x, 0))
@@ -252,8 +229,8 @@ class Render(object):
 
         for index, bpm in enumerate(timing_value_list):
             if bpm != self._song.bpm_base:
-                bpm_start_t = Coordinate.from_cartesian(timing_position_list[index] // resize)
-                bpm_end_t = Coordinate.from_cartesian(timing_position_list[index + 1] // resize)
+                bpm_start_t = Coordinate.from_cartesian(self.h, timing_position_list[index] // resize)
+                bpm_end_t = Coordinate.from_cartesian(self.h, timing_position_list[index + 1] // resize)
                 draw.rectangle(
                     (width_track - width_chart, bpm_start_t, width_track, bpm_end_t),
                     self.theme.variable_speed_layer_color
@@ -308,7 +285,7 @@ class Render(object):
             arc_path_list = []
             arc_alpha_list = []
             for x, t, z in Sample(arc).get_coordinate_list(arc_sampling_rate):
-                arc_path_list.append((x, Coordinate.from_cartesian(t // resize)))
+                arc_path_list.append((x, Coordinate.from_cartesian(self.h, t // resize)))
                 arc_alpha_list.append(z)
             # set parameters
             if not arc.is_skyline:
@@ -335,7 +312,7 @@ class Render(object):
         """Add comment for bpm change to the left of the chart """
         draw = ImageDraw.Draw(self.im)
         for timing in self._chart.get_command_list_for_type(Timing):
-            text_t = Coordinate.from_cartesian(timing.t // resize) - 2 * default_text_size
+            text_t = Coordinate.from_cartesian(self.h, timing.t // resize) - 2 * default_text_size
             draw.text(
                 (default_text_x, text_t),
                 str(timing.bpm),
@@ -356,8 +333,8 @@ class Render(object):
         self.im_tiled_segments = Image.new('RGBA', size, self.theme.transparent_color)
         for i in range(segment_count):
             box = (
-                0, Coordinate.from_cartesian((i + 1) * segment_height),
-                width_track + additional_canvas_width, Coordinate.from_cartesian(i * segment_height)
+                0, Coordinate.from_cartesian(self.h, (i + 1) * segment_height),
+                width_track + additional_canvas_width, Coordinate.from_cartesian(self.h, i * segment_height)
             )
             im_cropped = Image.Image.crop(self.im, box)
             self.im_tiled_segments.alpha_composite(im_cropped, (i * width_track, 0))
