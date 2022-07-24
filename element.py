@@ -198,7 +198,7 @@ class Chart(object):
         result += sum(
             1
             for note in chain(self._tap_list, self._arctap_list, self._flick_list)
-            if note.get_interval()[0] <= t
+            if note.get_interval()[0] <= t - 25
         )
         # long note
         result += sum(
