@@ -438,8 +438,8 @@ class Render(object):
             anchor='rs'
         )
 
-    def save(self, path: str):
-        self.im.save(path)
+    def save(self, path: str, **kwargs):
+        self.im.save(path, **kwargs)
 
     def show(self):
         self.im.show()
