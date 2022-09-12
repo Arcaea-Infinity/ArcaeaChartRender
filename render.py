@@ -381,8 +381,8 @@ class Render(object):
         this_diff = self._song.difficulties[self._difficulty]
         # title
         draw.text(
-            (width_cover + margin_bg * 2, self.im.size[1] - height_cover - margin_bg // 2),
-            self._song.title_localized.en,
+            xy=(width_cover + margin_bg * 2, self.im.size[1] - height_cover - margin_bg // 2),
+            text=self._song.title_localized.en,
             fill=self.theme.text_song_title_color,
             font=self.theme.font_Kazesawa_Regular_54,
             stroke_width=3,
@@ -392,37 +392,39 @@ class Render(object):
         chart_designer = this_diff.chartDesigner.replace('\n', ' ')
         jacket_designer = this_diff.jacketDesigner.replace('\n', ' ')
         draw.text(
-            (width_cover + margin_bg * 2, self.im.size[1] - height_cover + 54),  # 54 is song title font size
-            f'Artist: {self._song.artist}\nChart Designer: {chart_designer}\nJacket Designer: {jacket_designer}',
+            xy=(width_cover + margin_bg * 2, self.im.size[1] - height_cover + 54),  # 54 is song title font size
+            text=dedent(f'''\
+            Artist: {self._song.artist}
+            Chart Designer: {chart_designer}
+            Jacket Designer: {jacket_designer}
+            '''),
             fill=self.theme.text_other_info_color,
             font=self.theme.font_SourceHanMonoSC_Regular_40,
         )
         # combo / tap / arctap / hold / arc
-        text = dedent(f'''\
-        Combo  : {self._chart.get_total_combo()}
-        Tap    : {self._chart.get_combo_of(Tap)}
-        ArcTap : {self._chart.get_combo_of(ArcTap)}
-        Hold   : {self._chart.get_combo_of(Hold)}
-        Arc    : {self._chart.get_combo_of(Arc)}
-        ''')
         draw.text(
-            (self.im.size[0] // 2, self.im.size[1] - height_cover - margin_bg // 2),
-            text,
+            xy=(self.im.size[0] // 2, self.im.size[1] - height_cover - margin_bg // 2),
+            text=dedent(f'''\
+            Combo  : {self._chart.get_total_combo()}
+            Tap    : {self._chart.get_combo_of(Tap)}
+            ArcTap : {self._chart.get_combo_of(ArcTap)}
+            Hold   : {self._chart.get_combo_of(Hold)}
+            Arc    : {self._chart.get_combo_of(Arc)}
+            '''),
             fill=self.theme.text_other_info_color,
             font=self.theme.font_SourceHanMonoSC_Regular_34,
         )
         # duration / BPM / base BPM / difficulty / constant
         literal_difficulty = ['Past', 'Present', 'Future', 'Beyond'][self._difficulty]
-        text = dedent(f'''\
-        Duration : {ms_to_sexagesimal(self._chart.end_time)}
-        BPM      : {self._song.bpm}
-        Base BPM : {self._song.bpm_base}
-        Level    : {literal_difficulty} [{this_diff.rating}{'+' if this_diff.ratingPlus else ''}]
-        Constant : {self._constant:.1f}
-        ''')
         draw.text(
-            (self.im.size[0] // 5 * 3, self.im.size[1] - height_cover - margin_bg // 2),
-            text,
+            xy=(self.im.size[0] // 5 * 3, self.im.size[1] - height_cover - margin_bg // 2),
+            text=dedent(f'''\
+            Duration : {ms_to_sexagesimal(self._chart.end_time)}
+            BPM      : {self._song.bpm}
+            Base BPM : {self._song.bpm_base}
+            Level    : {literal_difficulty} [{this_diff.rating}{'+' if this_diff.ratingPlus else ''}]
+            Constant : {self._constant:.1f}
+            '''),
             fill=self.theme.text_other_info_color,
             font=self.theme.font_SourceHanMonoSC_Regular_34,
         )
@@ -431,8 +433,8 @@ class Render(object):
         """Add slogan to the bottom right corner of the image."""
         draw = ImageDraw.Draw(self.im)
         draw.text(
-            (self.im.size[0] - margin_bg, self.im.size[1] - margin_bg),
-            self.theme.slogan,
+            xy=(self.im.size[0] - margin_bg, self.im.size[1] - margin_bg),
+            text=self.theme.slogan,
             fill=self.theme.text_other_info_color,
             font=self.theme.font_Exo_SemiBold_40,
             anchor='rs'
