@@ -590,7 +590,7 @@ class TimingGroup(Chart, Control):
         return f'[TimingGroup] {len(self.command_list)} commands{literal_type}'
 
     def __str__(self):
-        return self.__repr__() + '\n > ' + '\n > '.join([str(_) for _ in self.command_list])
+        return self.__repr__() + '\n > ' + '\n > '.join(str(_) for _ in self.command_list)
 
     def syntax_check(self) -> bool:
         """Overrides Chart.syntax_check(), it just checks the inner commands."""
