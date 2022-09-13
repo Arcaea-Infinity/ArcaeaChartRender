@@ -23,7 +23,7 @@ class Coordinate(object):
     def from_cartesian(height_track: int, y: int, object_height: Optional[int] = None) -> int:
         """
         In the Cartesian coordinate system, X is the distance from the left
-        boundary and Y is the distance from the right boundary. However, in the
+        boundary and Y is the distance from the lower boundary. However, in the
         Pillow coordinate system, Y is the distance from the upper boundary.
 
         This function converts coordinates between Cartesian and Pillow coordinate
