@@ -19,7 +19,7 @@ Examples::
 """
 
 __all__ = [
-    'header', 'tap', 'arc_easing_type', 'fx_type', 'skyline_judgment', 'arctap',
+    'header', 'tap', 'arc_easing_type', 'arctap_hit_sound_type', 'skyline_judgment', 'arctap',
     'arctap_nested', 'arc', 'camera_easing_type', 'camera', 'flick', 'hold',
     'scene_control', 'timing', 'command', 'timing_group',
 ]
@@ -50,8 +50,8 @@ tap = nested_expr('(', ')', delimited_list(ppc.number))
 # arc easing type
 arc_easing_type = one_of(AV.Easing.all)
 
-# arc FX type
-fx_type = one_of(AV.FX.all)
+# arctap hit sound
+arctap_hit_sound_type = one_of(AV.HitSound.all)
 
 # arc skyline judgment
 skyline_judgment = one_of(AV.SkyLine.all)
@@ -68,7 +68,7 @@ arctap_nested = nested_expr('[', ']', delimited_list(arctap))
 # e.g. arc(28666,28999,0.25,0.25,s,0.00,0.00,0,none,true)[arctap(28666),arctap(28833)];
 arc = (
               Suppress(AK.arc) +
-              nested_expr('(', ')', delimited_list(ppc.number | arc_easing_type | fx_type | skyline_judgment))
+              nested_expr('(', ')', delimited_list(ppc.number | arc_easing_type | arctap_hit_sound_type | skyline_judgment))
       ) + arctap_nested[0, ...]
 
 # camera easing type

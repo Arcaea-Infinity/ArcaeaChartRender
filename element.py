@@ -305,7 +305,7 @@ class Arc(LongNote):
             easing: str,
             y1: float, y2: float,
             color: int,
-            FX: str,
+            hit_sound: str,
             is_skyline: str,
             arctap_list: list[Optional['ArcTap']],
     ):
@@ -317,7 +317,7 @@ class Arc(LongNote):
         self.y1 = y1
         self.y2 = y2
         self.color = Color(color)
-        self.FX = FX
+        self.hit_sound = hit_sound
         # Regardless of the value of is_skyline,
         # as long as arctap_list exists, then it must be skyline.
         self.is_skyline = {
@@ -365,7 +365,7 @@ class Arc(LongNote):
             isinstance(self.y2, float),
             self.color != Color.Error,
             self.easing in AffToken.Value.Easing.all,
-            self.FX in AffToken.Value.FX.all,
+            self.hit_sound in AffToken.Value.HitSound.all,
         ])
 
     def get_arctap_count(self) -> int:

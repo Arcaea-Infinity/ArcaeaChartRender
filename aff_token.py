@@ -29,7 +29,7 @@ class AffToken(object):
             false = 'false'
             all = [true, false]
 
-        class FX(object):
+        class HitSound(object):
             none = 'none'
             full = 'full'
             incremental = 'incremental'

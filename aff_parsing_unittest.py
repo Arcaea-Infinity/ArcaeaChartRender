@@ -52,11 +52,11 @@ class AffParsingTestCase(unittest.TestCase):
             aff_parsing.arc_easing_type.parse_string(line).as_list(),
         )
 
-    def test_FX_type(self):
+    def test_arctap_hit_sound_type(self):
         line = 'none'
         self.assertEqual(
             ['none'],
-            aff_parsing.fx_type.parse_string(line).as_list(),
+            aff_parsing.arctap_hit_sound_type.parse_string(line).as_list(),
         )
 
     def test_skyline_judgment(self):
