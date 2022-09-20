@@ -40,6 +40,7 @@ class BaseTheme(ABC):
     tap_path: str  # assets/img/note.png
     hold_path: str  # assets/img/note_hold.png
     arctap_path: str  # assets/img/wall.png
+    arctap_sfx_path: str  # assets/models/sfx_d_note.jpg
     default_bg_path: str  # assets/img/bg/base_light.jpg
 
     custom_bg_dir_path: str = './assets/img/bg/'  # put your custom background here if bg has been defined in songlist
@@ -86,6 +87,7 @@ class LightTheme(BaseTheme):
     tap_path = './assets/img/note.png'
     hold_path = './assets/img/note_hold.png'
     arctap_path = './assets/img/wall.png'
+    arctap_sfx_path = './assets/models/sfx_l_note.jpg'
     default_bg_path = './assets/img/bg/base_light.jpg'
 
     track_split_line_color = (46, 31, 60, 192)
@@ -103,6 +105,7 @@ class ConflictTheme(BaseTheme):
     tap_path = './assets/img/note_dark.png'
     hold_path = './assets/img/note_hold_dark.png'
     arctap_path = './assets/img/wall.png'
+    arctap_sfx_path = './assets/models/sfx_d_note.jpg'
     default_bg_path = './assets/img/bg/base_conflict.jpg'
 
     track_split_line_color = (210, 210, 210, 40)

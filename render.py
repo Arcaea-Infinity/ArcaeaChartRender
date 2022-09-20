@@ -266,14 +266,20 @@ class Render(object):
         """Draw all ArcTaps on skyline."""
         im_arctap = Image.open(self.theme.arctap_path).convert('RGBA')
         im_arctap = im_arctap.transpose(Image.Transpose.ROTATE_270).resize((width_arctap, height_arctap))
+        im_arctap_sfx = Image.open(self.theme.arctap_sfx_path).convert('RGBA')
+        im_arctap_sfx = im_arctap_sfx.resize((width_arctap, height_arctap))
         for arc in self._chart.get_command_list_for_type(Arc, search_in_timing_group=True, exclude_noinput=False):
             sample = Sample(arc)
+            which_im_arctap = {
+                AffToken.Value.HitSound.glass_wav: im_arctap_sfx,
+                AffToken.Value.HitSound.voice_wav: im_arctap_sfx,
+            }.get(arc.hit_sound, im_arctap)
             for arctap in arc.arctap_list:  # An Arc with an empty arctap_list will be automatically skipped.
                 x, z = Coordinate.from_normalized(sample.get_coordinate_tuple(arctap.tn))
                 t = arctap.tn // resize
-                im_arctap.putalpha(z)
+                which_im_arctap.putalpha(z)
                 self.im.alpha_composite(
-                    im_arctap,
+                    which_im_arctap,
                     (x - width_arctap // 2, Coordinate.from_cartesian(self.h, t, height_arctap))
                 )
 

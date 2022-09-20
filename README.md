@@ -32,6 +32,7 @@ If a property of `BaseTheme` is inherited by one of its subclasses (e.g. `LightT
 | `tap_path`                        | `note.png` and `note_dark.png`                                                                                                      |
 | `hold_path`                       | `note_hold.png` and `note_hold_dark.png`                                                                                            |
 | `arctap_path`                     | `wall.png`                                                                                                                          |
+| `arctap_sfx_path`                 | `sfx_l_note.jpg` and `sfx_d_note.jpg`                                                                                               |
 | `default_bg_path`                 | `base_light.jpg` and `base_conflict.jpg`                                                                                            |
 | `custom_bg_dir_path `             | put your custom background here if `bg` field has been defined in songlist                                                          |
 

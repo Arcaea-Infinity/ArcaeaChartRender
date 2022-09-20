@@ -33,7 +33,9 @@ class AffToken(object):
             none = 'none'
             full = 'full'
             incremental = 'incremental'
-            all = [none, full, incremental]
+            glass_wav = 'glass_wav'
+            voice_wav = 'voice_wav'
+            all = [none, full, incremental, glass_wav, voice_wav]
 
         class Easing(object):
             bezier = 'b'
