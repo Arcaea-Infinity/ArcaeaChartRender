@@ -273,6 +273,7 @@ class Render(object):
             which_im_arctap = {
                 AffToken.Value.HitSound.glass_wav: im_arctap_sfx,
                 AffToken.Value.HitSound.voice_wav: im_arctap_sfx,
+                AffToken.Value.HitSound.kick_wav: im_arctap_sfx,
             }.get(arc.hit_sound, im_arctap)
             for arctap in arc.arctap_list:  # An Arc with an empty arctap_list will be automatically skipped.
                 x, z = Coordinate.from_normalized(sample.get_coordinate_tuple(arctap.tn))
