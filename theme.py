@@ -59,9 +59,9 @@ class BaseTheme(ABC):
     default_transparency_range = (100, 220)
 
     transparent_color = (255, 255, 255, 0)
-    arc_red_color = (185, 118, 180)  # another: (255, 105, 180)
-    arc_blue_color = (76, 141, 184)  # another: (49, 218, 231)
-    arc_green_color = (124, 252, 0)
+    arc_red_color = (185, 118, 180)  # alternative: (255, 150, 220)
+    arc_blue_color = (76, 141, 184)  # alternative: (12, 212, 212)
+    arc_green_color = (35, 255, 108)
     arc_alpha = (0, 0, 0)  # for arc whose color is Color.Alpha (like PRAGMATISM BYD)
     arc_skyline_color = (144, 138, 144)
     text_song_title_color = (222, 222, 222, 255)  # color for song title at text area
@@ -99,6 +99,10 @@ class LightTheme(BaseTheme):
     variable_speed_layer_color = (255, 255, 102, 50)
     overlay_color = (200, 200, 200, 120)
 
+    arc_red_color = (185, 118, 180)
+    arc_blue_color = (76, 141, 184)
+    arc_green_color = (35, 255, 108)
+
 
 class ConflictTheme(BaseTheme):
     tile_path = './assets/img/track_dark.png'
@@ -116,3 +120,7 @@ class ConflictTheme(BaseTheme):
     text_other_info_color = (233, 233, 233, 255)
     variable_speed_layer_color = (255, 255, 102, 50)
     overlay_color = (50, 50, 50, 200)
+
+    arc_red_color = (255, 150, 220)
+    arc_blue_color = (12, 212, 212)
+    arc_green_color = (35, 255, 108)
