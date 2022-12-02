@@ -39,7 +39,7 @@ class BaseTheme(ABC):
     tile_path: str  # assets/img/track.png
     tap_path: str  # assets/img/note.png
     hold_path: str  # assets/img/note_hold.png
-    arctap_path: str  # assets/img/wall.png
+    arctap_path: str  # assets/models/tap_d.png
     arctap_sfx_path: str  # assets/models/sfx_d_note.jpg
     default_bg_path: str  # assets/img/bg/base_light.jpg
 
@@ -86,7 +86,7 @@ class LightTheme(BaseTheme):
     tile_path = './assets/img/track.png'
     tap_path = './assets/img/note.png'
     hold_path = './assets/img/note_hold.png'
-    arctap_path = './assets/img/wall.png'
+    arctap_path = './assets/models/tap_l.png'
     arctap_sfx_path = './assets/models/sfx_l_note.jpg'
     default_bg_path = './assets/img/bg/base_light.jpg'
 
@@ -108,7 +108,7 @@ class ConflictTheme(BaseTheme):
     tile_path = './assets/img/track_dark.png'
     tap_path = './assets/img/note_dark.png'
     hold_path = './assets/img/note_hold_dark.png'
-    arctap_path = './assets/img/wall.png'
+    arctap_path = './assets/models/tap_d.png'
     arctap_sfx_path = './assets/models/sfx_d_note.jpg'
     default_bg_path = './assets/img/bg/base_conflict.jpg'
 

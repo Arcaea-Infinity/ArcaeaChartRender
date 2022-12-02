@@ -264,8 +264,7 @@ class Render(object):
 
     def _draw_arc_tap(self):
         """Draw all ArcTaps on skyline."""
-        im_arctap = Image.open(self.theme.arctap_path).convert('RGBA')
-        im_arctap = im_arctap.transpose(Image.Transpose.ROTATE_270).resize((width_arctap, height_arctap))
+        im_arctap = Image.open(self.theme.arctap_path).convert('RGBA').resize((width_arctap, height_arctap))
         im_arctap_sfx = Image.open(self.theme.arctap_sfx_path).convert('RGBA')
         im_arctap_sfx = im_arctap_sfx.resize((width_arctap, height_arctap))
         for arc in self._chart.get_command_list_for_type(Arc, search_in_timing_group=True, exclude_noinput=False):
