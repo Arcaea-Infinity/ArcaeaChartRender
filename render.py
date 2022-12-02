@@ -186,8 +186,8 @@ class Render(object):
 
         for index, bpm in enumerate(timing_value_list):
             timing_duration = timing_position_list[index + 1] - timing_position_list[index]
-            if bpm == 0:
-                continue  # abandon drawing lines with bpm = 0
+            if bpm < self._song.bpm_base // 10:
+                continue  # abandon drawing lines with strange bpm (zero, negative or too small)
             bar_duration = 60000 / bpm
             for i in range(ceil(timing_duration / bar_duration + 1)):
                 x = width_track - width_chart + width_chart_edge
@@ -324,12 +324,12 @@ class Render(object):
         """Add comment for bpm change to the left of the chart """
         draw = ImageDraw.Draw(self.im)
         for timing in self._chart.get_command_list_for_type(Timing):
-            text_t = Coordinate.from_cartesian(self.h, timing.t // resize) - 2 * default_text_size
+            text_t = Coordinate.from_cartesian(self.h, timing.t // resize)
             draw.text(
-                (default_text_x, text_t),
+                (default_text_x + 2 * width_chart_edge, text_t),
                 str(timing.bpm),
                 fill=self.theme.text_bpm_change_color,
-                font=self.theme.font_Exo_SemiBold_20, anchor='rs'
+                font=self.theme.font_Exo_SemiBold_20, anchor='ls'
             )
 
     def _post_processing_segment(self):
