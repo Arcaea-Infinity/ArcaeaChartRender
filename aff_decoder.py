@@ -23,10 +23,10 @@ def decode(command_type: str, command: list, in_timing_group: bool = False) -> C
     elif command_type == AffToken.Keyword.arc:
         # [[28666, 28999, 0.25, 0.25, 's', 0.00, 0.00, 0, 'none', 'true'], [[28666], [28833]]]
         arc = command[0]
-        arctap_list: list[ArcTap] = list(map(
-            lambda _: ArcTap(tn=_[0], arc_timing_window=(arc[0], arc[1]), color=arc[7]),
-            command[1]
-        )) if len(command) == 2 else []
+        arctap_list = [
+            ArcTap(tn=tn[0], arc_timing_window=(arc[0], arc[1]), color=arc[7])
+            for tn in command[1]
+        ]
         return Arc(*arc, arctap_list=arctap_list)
     elif command_type == AffToken.Keyword.flick:
         # [[114514, 0.00, 0.00, 1.00, -1.00]]
@@ -87,11 +87,9 @@ def parse_aff(aff: list[str]) -> Chart:
     header_dict: dict = {}
 
     # record headers (before '-\n')
-    line = aff.pop(0)
-    while line != '-\n':
+    while (line := aff.pop(0)) != '-\n':
         key, value = parse_header(line)
         header_dict[key] = value
-        line = aff.pop(0)
 
     # record commands (use PyParsing to parse rest of lines directly)
     rest_content = ''.join(aff)

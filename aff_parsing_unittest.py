@@ -93,7 +93,7 @@ class AffParsingTestCase(unittest.TestCase):
         )
         line = 'arc(28666,28999,0.25,0.25,s,0.00,0.00,0,none,true);'
         self.assertEqual(
-            [[28666, 28999, 0.25, 0.25, 's', 0.00, 0.00, 0, 'none', 'true']],
+            [[28666, 28999, 0.25, 0.25, 's', 0.00, 0.00, 0, 'none', 'true'], []],
             aff_parsing.arc.parse_string(line).as_list(),
         )
 
@@ -208,7 +208,8 @@ class AffParsingTestCase(unittest.TestCase):
                                         0,
                                         "none",
                                         "true"
-                                    ]
+                                    ],
+                                    []
                                 ]
                             ],
                             "hold": [

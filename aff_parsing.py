@@ -32,7 +32,7 @@ from pyparsing import (
     one_of,
     nested_expr,
     delimited_list,
-    pyparsing_common as ppc,
+    pyparsing_common as ppc, Opt,
 )
 
 from aff_token import AffToken
@@ -69,7 +69,7 @@ arctap_nested = nested_expr('[', ']', delimited_list(arctap))
 arc = (
               Suppress(AK.arc) +
               nested_expr('(', ')', delimited_list(ppc.number | arc_easing_type | arctap_hit_sound_type | skyline_judgment))
-      ) + arctap_nested[0, ...]
+      ) + Opt(arctap_nested, default=[])
 
 # camera easing type
 camera_easing_type = one_of(AV.Camera.all)
