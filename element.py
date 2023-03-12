@@ -541,28 +541,28 @@ class SceneControl(Control):
         return f'[{self.t} SceneControl] type: {self.type_}'
 
     def syntax_check(self) -> bool:
-        AVS = AffToken.Value.SceneControl
+        scene_control = AffToken.Value.SceneControl
         return all([
             isinstance(self.t, int),
-            self.type_ in AVS.all,
+            self.type_ in scene_control.all,
             any([  # syntax check for specific scene control types
                 all([
-                    self.type_ in [AVS.track_hide, AVS.track_show, AVS.arcahv_distort],
+                    self.type_ in [scene_control.track_hide, scene_control.track_show, scene_control.arcahv_distort],
                     self.param1 is None,
                     self.param2 is None,
                 ]),
                 all([
-                    self.type_ in [AVS.track_display, AVS.redline, AVS.arcahv_debris],
+                    self.type_ in [scene_control.track_display, scene_control.redline, scene_control.arcahv_debris],
                     isinstance(self.param1, float),
                     isinstance(self.param2, int),
                 ]),
                 all([
-                    self.type_ == AVS.hide_group,
+                    self.type_ == scene_control.hide_group,
                     isinstance(self.param1, float),
                     self.param2 in range(2),
                 ]),
                 all([
-                    self.type_ in [AVS.enwidenlanes, AVS.enwidencamera],
+                    self.type_ in [scene_control.enwidenlanes, scene_control.enwidencamera],
                     isinstance(self.param1, float),
                     self.param2 in range(2),
                 ])

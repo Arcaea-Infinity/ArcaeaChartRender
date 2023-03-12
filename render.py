@@ -13,7 +13,22 @@ from aff_decoder import parse_aff
 from aff_token import AffToken, Color
 from element import Tap, Arc, Hold, Timing, ArcTap
 from model import Song
-from theme_local import *
+from theme_local import (
+    width_track, height_track_reserved,
+    width_chart, height_chart,
+    width_note, height_note,
+    width_arctap, height_arctap,
+    width_hold, height_hold,
+    additional_canvas_width,
+    margin_bg,
+    width_gap,
+    width_chart_edge,
+    width_cover, height_cover,
+    default_text_x,
+    default_text_size,
+    arc_sampling_rate, resize,
+    BaseTheme, LightTheme, ConflictTheme,
+)
 from utils import read_file, ms_to_sexagesimal
 
 
@@ -91,27 +106,27 @@ class Sample(object):
             z: from 0.0 to 1.0
         """
         p = (t - self.start) / (self.end - self.start)  # p is the normalized time
-        AVE = AffToken.Value.Easing
+        easing = AffToken.Value.Easing
 
         x = {
-            AVE.straight: self._s,
-            AVE.bezier: self._b,
-            AVE.sine_in: self._i,
-            AVE.sine_in_in: self._i,
-            AVE.sine_in_out: self._i,
-            AVE.sine_out: self._o,
-            AVE.sine_out_in: self._o,
-            AVE.sine_out_out: self._o,
+            easing.straight: self._s,
+            easing.bezier: self._b,
+            easing.sine_in: self._i,
+            easing.sine_in_in: self._i,
+            easing.sine_in_out: self._i,
+            easing.sine_out: self._o,
+            easing.sine_out_in: self._o,
+            easing.sine_out_out: self._o,
         }.get(self.easing, self._s)(p, self.x1, self.x2)
         z = {
-            AVE.straight: self._s,
-            AVE.sine_in: self._s,
-            AVE.sine_out: self._s,
-            AVE.bezier: self._b,
-            AVE.sine_in_in: self._i,
-            AVE.sine_out_in: self._i,
-            AVE.sine_in_out: self._o,
-            AVE.sine_out_out: self._o,
+            easing.straight: self._s,
+            easing.sine_in: self._s,
+            easing.sine_out: self._s,
+            easing.bezier: self._b,
+            easing.sine_in_in: self._i,
+            easing.sine_out_in: self._i,
+            easing.sine_in_out: self._o,
+            easing.sine_out_out: self._o,
         }.get(self.easing, self._s)(p, self.y1, self.y2)
 
         return x, z
@@ -300,19 +315,19 @@ class Render(object):
                 arc_alpha_list.append(z)
             # set parameters
             if not arc.is_skyline:
-                im, color_RGB = {
+                im, color = {
                     Color.Red: (im_arc_red, self.theme.arc_red_color),
                     Color.Blue: (im_arc_blue, self.theme.arc_blue_color),
                     Color.Green: (im_arc_green, self.theme.arc_green_color),
                 }.get(arc.color)
                 thickness = self.theme.thickness_arc
             elif arc.is_skyline:
-                im, color_RGB, thickness = im_arc_skyline, self.theme.arc_skyline_color, self.theme.thickness_skyline
+                im, color, thickness = im_arc_skyline, self.theme.arc_skyline_color, self.theme.thickness_skyline
             else:
                 raise TypeError(f'Unsupported arc type: {arc}')
             # draw arc or skyline
             for xy_start, xy_end, alpha in zip(arc_path_list, arc_path_list[1:], arc_alpha_list[1:]):
-                cv2.line(im, xy_start, xy_end, (*color_RGB, alpha), thickness, cv2.LINE_AA)
+                cv2.line(im, xy_start, xy_end, (*color, alpha), thickness, cv2.LINE_AA)
 
         self.im.alpha_composite(Image.fromarray(im_arc_red))
         self.im.alpha_composite(Image.fromarray(im_arc_blue))
