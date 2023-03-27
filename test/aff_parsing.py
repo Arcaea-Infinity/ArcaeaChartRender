@@ -1,7 +1,7 @@
 import textwrap
 import pytest
 
-from src import aff_parsing
+from src.aff import parsing as aff_parsing
 
 
 class TestAffParsing:

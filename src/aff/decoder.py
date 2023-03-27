@@ -6,9 +6,9 @@ __all__ = ['decode', 'parse_header', 'parse_command_dict', 'parse_aff']
 
 from typing import Optional, Any
 
-import aff_parsing
-from aff_token import AffToken
-from element import (
+import parsing as aff_parsing
+from .token import AffToken
+from ..element import (
     Chart, Command,
     Tap, Arc, Flick, Hold,
     Camera, SceneControl, Timing, TimingGroup, ArcTap

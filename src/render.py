@@ -9,11 +9,11 @@ import cv2
 import numpy as np
 from PIL import Image, ImageDraw
 
-from aff_decoder import parse_aff
-from aff_token import AffToken, Color
+from aff.decoder import parse_aff
+from aff.token import AffToken, Color
 from element import Tap, Arc, Hold, Timing, ArcTap
 from model import Song
-from theme_local import (
+from .theme import (
     width_track, height_track_reserved,
     width_chart, height_chart,
     width_note, height_note,
