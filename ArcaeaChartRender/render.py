@@ -13,7 +13,7 @@ from aff.decoder import parse_aff
 from aff.token import AffToken, Color
 from element import Tap, Arc, Hold, Timing, ArcTap
 from model import Song
-from .theme import (
+from .theme_local import (
     width_track, height_track_reserved,
     width_chart, height_chart,
     width_note, height_note,

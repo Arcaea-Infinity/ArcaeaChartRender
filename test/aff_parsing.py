@@ -1,7 +1,7 @@
 import textwrap
 import pytest
 
-from src.aff import parsing as aff_parsing
+from ArcaeaChartRender.aff import parsing as aff_parsing
 
 
 class TestAffParsing:

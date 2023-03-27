@@ -8,6 +8,7 @@
  - opencv-python~=4.5.5.64
  - numpy~=1.23.0
  - pyparsing~=3.0.9
+ - pytest~=7.2.2(for test only, remove it if you don't need to run tests)
 
 ```bash
 pip install -r requirements.txt
@@ -124,7 +125,7 @@ In addition to rendering charts, you can use the library to do the following thi
 A minimal syntax check for individual commands in a chart.
 
 ```python
-from ArcaeaChartRender.aff_decoder import parse_aff
+from ArcaeaChartRender.aff.decoder import parse_aff
 from ArcaeaChartRender.utils import read_file
 
 chart = parse_aff(read_file('./songs/panicbounceattacki/2.aff'))
@@ -139,7 +140,7 @@ Statistical information such as combo calculation.
 See [`element.py`](./element.py) for more information.
 
 ```python
-from ArcaeaChartRender.aff_decoder import parse_aff
+from ArcaeaChartRender.aff.decoder import parse_aff
 from ArcaeaChartRender.element import Tap
 from ArcaeaChartRender.utils import read_file
 
@@ -158,7 +159,7 @@ Compose your Arcaea chart by Python DSL, and easily convert plain text of aff fi
 See [`aff_parsing.py`](./aff_parsing.py) for more information.
 
 ```python
-from ArcaeaChartRender.aff_parsing import command
+from ArcaeaChartRender.aff.parsing import command
 from ArcaeaChartRender.utils import read_file
 
 content = read_file('./songs/panicbounceattacki/2.aff')
