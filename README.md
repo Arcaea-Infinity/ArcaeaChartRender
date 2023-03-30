@@ -20,7 +20,7 @@ Render an Arcaea Chart simply.
 
 ### change your theme
 
-Before using, you need to copy and rename [`theme.py`](./theme.py) to `theme_local.py`, and edit `theme_local.py` to locate assets file.
+Before using, you need to copy and rename [`theme.py`](./ArcaeaChartRender/theme.py) to `theme_local.py`, and edit `theme_local.py` to locate assets file.
 
 If a property of `BaseTheme` is inherited by one of its subclasses (e.g. `LightTheme`), you should modify the property on its subclass. If the property is not inherited, then you should modify it directly on `BaseTheme`.
 
@@ -112,7 +112,7 @@ render.save('panicbounceattack_2.png')
 
 ## Example
 
-![eample](./assets/panicbounceattack_2.png)
+![example](./assets/panicbounceattack_2.png)
 
  - The yellow area means that the BPM in that area is not equal to the `bpm_base` of the song.
 
@@ -156,7 +156,7 @@ print(chart.get_interval())
 
 Compose your Arcaea chart by Python DSL, and easily convert plain text of aff file to `dict` or `list`.
 
-See [`aff_parsing.py`](./aff_parsing.py) for more information.
+See [`aff_parsing.py`](./ArcaeaChartRender/aff/parsing.py) for more information.
 
 ```python
 from ArcaeaChartRender.aff.parsing import command
