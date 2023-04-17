@@ -44,8 +44,8 @@ If a property of `BaseTheme` is inherited by one of its subclasses (e.g. `LightT
 When rendering the official chart, you deserve to have a `songlist` from which you can build the song metadata.
 
 ```python
-from ArcaeaChartRender.render import Render
-from ArcaeaChartRender.utils import fetch_song_info
+from ArcaeaChartRender import Render
+from ArcaeaChartRender import fetch_song_info
 
 render = Render(
     aff_path='./songs/panicbounceattack/2.aff',
@@ -64,7 +64,7 @@ render.save('panicbounceattack_2.png')
 In some cases, you may not be conscious of creating a `songlist` (e.g. fan-made chart), then you can use the `Song` model instead of the `fetch_song_info()` function.
 
 ```python
-from ArcaeaChartRender.render import Render
+from ArcaeaChartRender import Render
 from ArcaeaChartRender.model import Song
 
 my_song = Song(
@@ -125,7 +125,7 @@ A minimal syntax check for individual commands in a chart.
 
 ```python
 from ArcaeaChartRender.aff.decoder import parse_aff
-from ArcaeaChartRender.utils import read_file
+from ArcaeaChartRender import read_file
 
 chart = parse_aff(read_file('./songs/panicbounceattacki/2.aff'))
 for cmd in chart.command_list:
@@ -141,7 +141,7 @@ See [`element.py`](./ArcaeaChartRender/element.py) for more information.
 ```python
 from ArcaeaChartRender.aff.decoder import parse_aff
 from ArcaeaChartRender.element import Tap
-from ArcaeaChartRender.utils import read_file
+from ArcaeaChartRender import read_file
 
 chart = parse_aff(read_file('./songs/panicbounceattacki/2.aff'))
 print(chart.get_total_combo())
