@@ -6,7 +6,7 @@ __all__ = ['decode', 'parse_header', 'parse_command_dict', 'parse_aff']
 
 from typing import Optional, Any
 
-import parsing as aff_parsing
+from .parsing import command, header
 from .token import AffToken
 from ..element import (
     Chart, Command,
@@ -50,7 +50,7 @@ def decode(command_type: str, command: list, in_timing_group: bool = False) -> C
 
 def parse_header(line: str) -> tuple[str, Any]:
     """Record header k-v pair."""
-    key, _, value = aff_parsing.header.parse_string(line)
+    key, _, value = header.parse_string(line)
     return key, value
 
 
@@ -93,7 +93,7 @@ def parse_aff(aff: list[str]) -> Chart:
 
     # record commands (use PyParsing to parse rest of lines directly)
     rest_content = ''.join(aff)
-    command_dict: dict[str, list] = aff_parsing.command.parse_string(rest_content).as_dict()
+    command_dict: dict[str, list] = command.parse_string(rest_content).as_dict()
     command_list: list[Command] = parse_command_dict(command_dict)
 
     return Chart(header_dict, command_list)

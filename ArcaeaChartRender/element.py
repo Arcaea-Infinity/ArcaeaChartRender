@@ -19,8 +19,8 @@ from abc import ABC, abstractmethod
 from itertools import chain
 from typing import Union, Optional, Type, TypeVar, Iterator, Iterable
 
-from aff.token import AffToken, Color
-from utils import len_iter
+from .aff.token import AffToken, Color
+from .utils import len_iter
 
 _T = TypeVar('_T', bound='Command')
 

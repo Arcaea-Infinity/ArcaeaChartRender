@@ -9,10 +9,10 @@ import cv2
 import numpy as np
 from PIL import Image, ImageDraw
 
-from aff.decoder import parse_aff
-from aff.token import AffToken, Color
-from element import Tap, Arc, Hold, Timing, ArcTap
-from model import Song
+from .aff.decoder import parse_aff
+from .aff.token import AffToken, Color
+from .element import Tap, Arc, Hold, Timing, ArcTap
+from .model import Song
 from .theme_local import (
     width_track, height_track_reserved,
     width_chart, height_chart,
@@ -29,7 +29,7 @@ from .theme_local import (
     arc_sampling_rate, resize,
     BaseTheme, LightTheme, ConflictTheme,
 )
-from utils import read_file, ms_to_sexagesimal
+from .utils import read_file, ms_to_sexagesimal
 
 
 class Coordinate(object):

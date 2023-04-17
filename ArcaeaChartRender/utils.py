@@ -5,7 +5,7 @@ from collections import deque
 from itertools import count
 from typing import Iterable
 
-from model import Song
+from .model import Song
 
 
 def read_file(file_path: str) -> list[str]:
