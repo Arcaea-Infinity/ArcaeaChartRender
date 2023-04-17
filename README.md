@@ -65,7 +65,6 @@ In some cases, you may not be conscious of creating a `songlist` (e.g. fan-made 
 
 ```python
 from ArcaeaChartRender.render import Render
-from ArcaeaChartRender.utils import fetch_song_info
 from ArcaeaChartRender.model import Song
 
 my_song = Song(
@@ -137,7 +136,7 @@ for cmd in chart.command_list:
 
 Statistical information such as combo calculation.
 
-See [`element.py`](./element.py) for more information.
+See [`element.py`](./ArcaeaChartRender/element.py) for more information.
 
 ```python
 from ArcaeaChartRender.aff.decoder import parse_aff
