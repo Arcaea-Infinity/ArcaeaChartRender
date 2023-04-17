@@ -129,5 +129,5 @@ dmypy.json
 .idea/
 
 # res
-theme_local.py
+ArcaeaChartRender/theme_local.py
 render_test.py
