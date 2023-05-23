@@ -249,7 +249,7 @@ class Render(object):
                 bpm_start_t = Coordinate.from_cartesian(self.h, timing_position_list[index] // resize)
                 bpm_end_t = Coordinate.from_cartesian(self.h, timing_position_list[index + 1] // resize)
                 draw.rectangle(
-                    (width_track - width_chart, bpm_start_t, width_track, bpm_end_t),
+                    (width_track - width_chart, bpm_end_t, width_track, bpm_start_t),
                     self.theme.variable_speed_layer_color
                 )
 
