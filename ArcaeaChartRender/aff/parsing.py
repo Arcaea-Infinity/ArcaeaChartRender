@@ -48,13 +48,13 @@ header = Word(alphanums) + AS.header_split + Word(printables)
 tap = nested_expr('(', ')', delimited_list(ppc.number))
 
 # arc easing type
-arc_easing_type = one_of(AV.Easing.all)
+arc_easing_type = one_of(AV.Easing.all, as_keyword=True)
 
 # arctap hit sound
-arctap_hit_sound_type = one_of(AV.HitSound.all)
+arctap_hit_sound_type = one_of(AV.HitSound.all, as_keyword=True) | AV.HitSound.other_wav
 
 # arc skyline judgment
-skyline_judgment = one_of(AV.SkyLine.all)
+skyline_judgment = one_of(AV.SkyLine.all, as_keyword=True)
 
 # e.g. arctap(28666)
 arctap = (

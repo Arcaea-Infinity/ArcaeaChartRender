@@ -8,6 +8,8 @@ __all__ = ['AffToken', 'Color']
 
 import enum
 
+from pyparsing import Regex
+
 
 class AffToken(object):
     class Keyword(object):
@@ -36,6 +38,7 @@ class AffToken(object):
             glass_wav = 'glass_wav'
             voice_wav = 'voice_wav'
             kick_wav = 'kick_wav'
+            other_wav = Regex('[^,]+_wav')  # do not add it to all
             all = [none, full, incremental, glass_wav, voice_wav, kick_wav]
 
         class Easing(object):
