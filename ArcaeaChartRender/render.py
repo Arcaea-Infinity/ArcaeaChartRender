@@ -262,7 +262,7 @@ class Render(object):
             lane = tap.lane
             x = width_track - width_chart + width_chart_edge + width_gap * (3 * lane - 2) + width_note * (lane - 1)
             t = tap.t // resize
-            self.im.alpha_composite(im_tap, (x, Coordinate.from_cartesian(self.h, t, height_note)))
+            self.im.alpha_composite(im_tap, (int(x), Coordinate.from_cartesian(self.h, t, height_note)))
 
     def _draw_note_hold(self):
         """Draw all Holds in the chart."""
@@ -275,7 +275,7 @@ class Render(object):
             im_stretched_hold = im_hold.resize((width_hold, stretched_height_hold))
             x = width_track - width_chart + width_chart_edge + width_gap * (3 * lane - 2) + width_note * (lane - 1)
             t = hold.t1 // resize
-            self.im.alpha_composite(im_stretched_hold, (x, Coordinate.from_cartesian(self.h, t, stretched_height_hold)))
+            self.im.alpha_composite(im_stretched_hold, (int(x), Coordinate.from_cartesian(self.h, t, stretched_height_hold)))
 
     def _draw_arc_tap(self):
         """Draw all ArcTaps on skyline."""

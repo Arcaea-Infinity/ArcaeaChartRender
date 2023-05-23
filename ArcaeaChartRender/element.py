@@ -243,7 +243,7 @@ class Note(Command, ABC):
 class Tap(Note):
     """Ground tap."""
 
-    def __init__(self, t: int, lane: int):
+    def __init__(self, t: int, lane: float):
         self.t = t
         self.lane = lane
 
@@ -251,10 +251,7 @@ class Tap(Note):
         return f'[{self.t} Tap] on lane {self.lane}'
 
     def syntax_check(self) -> bool:
-        return all([
-            isinstance(self.t, int),
-            self.lane in range(1, 5),
-        ])
+        return isinstance(self.t, int)
 
     def get_interval(self) -> tuple[int, int]:
         return self.t, self.t
@@ -273,7 +270,7 @@ class Hold(LongNote):
     def __init__(
             self,
             t1: int, t2: int,
-            lane: int
+            lane: float
     ):
         self.t1 = t1
         self.t2 = t2
@@ -287,7 +284,6 @@ class Hold(LongNote):
             isinstance(self.t1, int),
             isinstance(self.t2, int),
             self.t1 < self.t2,
-            self.lane in range(1, 5),
         ])
 
     def get_interval(self) -> tuple[int, int]:
