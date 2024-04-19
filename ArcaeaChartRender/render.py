@@ -399,7 +399,7 @@ class Render(object):
     def _post_processing_song_meta(self):
         """Add song metadata at text area."""
         draw = ImageDraw.Draw(self.im)
-        this_diff = self._song.difficulties[self._difficulty]
+        this_diff = next(x for x in self._song.difficulties if x.ratingClass == self._difficulty)
         # title
         draw.text(
             xy=(width_cover + margin_bg * 2, self.im.size[1] - height_cover - margin_bg // 2),
@@ -436,7 +436,7 @@ class Render(object):
             font=self.theme.font_SourceHanMonoSC_Regular_34,
         )
         # duration / BPM / base BPM / difficulty / constant
-        literal_difficulty = ['Past', 'Present', 'Future', 'Beyond'][self._difficulty]
+        literal_difficulty = ['Past', 'Present', 'Future', 'Beyond', 'Eternal'][self._difficulty]
         draw.text(
             xy=(self.im.size[0] // 5 * 3, self.im.size[1] - height_cover - margin_bg // 2),
             text=dedent(f'''\
