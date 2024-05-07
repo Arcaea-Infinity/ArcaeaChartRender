@@ -349,7 +349,14 @@ class Render(object):
     def _post_processing_segment(self):
         """Split the chart into multiple segments and then tile them from left to right."""
         bpm_proportion = self._chart.get_bpm_proportion()
-        main_bar_duration = 4 * 60000 / max(bpm_proportion, key=bpm_proportion.get)
+        main_bpm = max(bpm_proportion, key=bpm_proportion.get)
+
+        # ignore the bpm that is too small (Aleph-0 Present)
+        if main_bpm < 10:
+            main_bar_duration = 4 * 60000 / self._song.bpm_base
+        else:
+            main_bar_duration = 4 * 60000 / main_bpm
+
         segment = int(self._chart.end_time / 10000)
         segment_duration = (self._chart.end_time / segment // main_bar_duration or 1) * main_bar_duration
         segment_count = ceil(self._chart.end_time / segment_duration)
