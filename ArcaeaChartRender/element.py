@@ -51,27 +51,20 @@ class Chart(object):
 
         self.end_time = max(_.get_interval()[1] for _ in self.command_list)
         # will ignore the Timings in timing groups
-        self.sorted_timing_list = sorted(
-            self.get_command_list_for_type(Timing), key=lambda _: _.t)
-        self.timing_position_list = [
-            _.t for _ in self.sorted_timing_list] + [self.end_time]
+        self.sorted_timing_list = sorted(self.get_command_list_for_type(Timing), key=lambda _: _.t)
+        self.timing_position_list = [_.t for _ in self.sorted_timing_list] + [self.end_time]
         self.timing_value_list = [_.bpm for _ in self.sorted_timing_list]
         self.timing_beats_list = [_.beats for _ in self.sorted_timing_list]
         # the value of timing point density factor of the chart
         # if the chart does not define a density factor, then density_factor = 1.0
-        self.density_factor = float(self.header_dict.get(
-            AffToken.Keyword.timing_point_density_factor, 1.0))
+        self.density_factor = float(self.header_dict.get(AffToken.Keyword.timing_point_density_factor, 1.0))
         # cache these lists for calculate combo
         self._connected_arc_list = self._get_connected_arc_list()
-        self._hold_list = list(
-            self.get_command_list_for_type(Hold, False, True))
+        self._hold_list = list(self.get_command_list_for_type(Hold, False, True))
         self._tap_list = list(self.get_command_list_for_type(Tap, False, True))
-        self._arctap_list = list(
-            self.get_command_list_for_type(ArcTap, False, True))
-        self._flick_list = list(
-            self.get_command_list_for_type(Flick, False, True))
-        self._timing_group_list = list(
-            self.get_command_list_for_type(TimingGroup, False, True))
+        self._arctap_list = list(self.get_command_list_for_type(ArcTap, False, True))
+        self._flick_list = list(self.get_command_list_for_type(Flick, False, True))
+        self._timing_group_list = list(self.get_command_list_for_type(TimingGroup, False, True))
 
     def _get_note_bpm(self, note: 'Note') -> 'Timing':
         """Returns which bpm (Timing) interval the note is in."""
@@ -126,12 +119,10 @@ class Chart(object):
     ) -> Iterator[_T]:
         """Return an iterator of commands of the given type."""
         if type_ == ArcTap:
-            list_of_arctap_list = (
-                arc.arctap_list for arc in self.command_list if isinstance(arc, Arc))
+            list_of_arctap_list = (arc.arctap_list for arc in self.command_list if isinstance(arc, Arc))
             list_in_chart = chain(*list_of_arctap_list)
         else:
-            list_in_chart = (
-                command for command in self.command_list if isinstance(command, type_))
+            list_in_chart = (command for command in self.command_list if isinstance(command, type_))
 
         if search_in_timing_group:
             list_of_cmd_list_from_timing_group = (
@@ -161,8 +152,7 @@ class Chart(object):
                 continue
             if bpm < 0:
                 bpm = -bpm
-            judge_duration = 60000 / bpm / \
-                density_factor if bpm >= 255 else 30000 / bpm / density_factor
+            judge_duration = 60000 / bpm / density_factor if bpm >= 255 else 30000 / bpm / density_factor
             count = int((end_time - start_time) / judge_duration)
 
             if count <= 1:
@@ -189,8 +179,7 @@ class Chart(object):
         if type_ in [Tap, ArcTap, Flick]:
             combo_in_chart = len_iter(self.get_command_list_for_type(type_))
         elif type_ is Hold:
-            combo_in_chart = self.get_long_note_combo(
-                self.get_command_list_for_type(Hold))
+            combo_in_chart = self.get_long_note_combo(self.get_command_list_for_type(Hold))
         elif type_ is Arc:
             combo_in_chart = self.get_long_note_combo(self._connected_arc_list)
         else:
@@ -209,12 +198,11 @@ class Chart(object):
         # single note in current group
         result += sum(
             note.get_interval()[0] <= t - 25
-            for note in chain(self._tap_list, self._arctap_list, self._flick_list)
+            for note in chain(self._tap_list,self._arctap_list, self._flick_list)
         )
         # long note in current group
         result += sum(
-            (min(t, note.t2) - note.t1) / (note.t2 - note.t1) *
-            self.get_long_note_combo([note])
+            (min(t, note.t2) - note.t1) / (note.t2 - note.t1) * self.get_long_note_combo([note])
             for note in chain(self._hold_list, self._connected_arc_list)
             if t > note.t1 != note.t2
         )
@@ -244,8 +232,7 @@ class Chart(object):
         for index, bpm in enumerate(self.timing_value_list):
             if bpm not in result:
                 result[bpm] = 0
-            result[bpm] += (timing_position_list[index + 1] -
-                            timing_position_list[index]) / duration
+            result[bpm] += (timing_position_list[index + 1] - timing_position_list[index]) / duration
 
         return result
 
@@ -334,10 +321,10 @@ class Arc(LongNote):
         # Regardless of the value of is_skyline,
         # as long as arctap_list exists, then it must be skyline.
         self.is_skyline: bool | Literal['Designant'] = {
-            AffToken.Value.SkyLine.true: True,
-            AffToken.Value.SkyLine.false: False,
-            AffToken.Value.SkyLine.designant: 'Designant'
-        }[is_skyline] or bool(arctap_list)
+                              AffToken.Value.SkyLine.true: True,
+                              AffToken.Value.SkyLine.false: False,
+                              AffToken.Value.SkyLine.designant: 'Designant'
+                          }[is_skyline] or bool(arctap_list)
         self.arctap_list = arctap_list
 
     def __repr__(self):
@@ -345,8 +332,7 @@ class Arc(LongNote):
         color: Color | Literal['Designant'] = self.color
         if self.is_skyline is True:
             if self.arctap_list:
-                literal_arctap_list = ', with arctap: ' + \
-                    ' '.join(map(lambda _: str(_.tn), self.arctap_list))
+                literal_arctap_list = ', with arctap: ' + ' '.join(map(lambda _: str(_.tn), self.arctap_list))
             else:
                 literal_arctap_list = ''
             return (
@@ -404,8 +390,7 @@ class ArcTap(Note):
             color: int
     ):
         self.tn = tn
-        # (t1, t2) of the located arc
-        self.arc_timing_window = arc_timing_window
+        self.arc_timing_window = arc_timing_window  # (t1, t2) of the located arc
         self.color = Color(color)
 
     def __repr__(self):
@@ -567,14 +552,12 @@ class SceneControl(Control):
             self.type_ in scene_control.all,
             any([  # syntax check for specific scene control types
                 all([
-                    self.type_ in [
-                        scene_control.track_hide, scene_control.track_show, scene_control.arcahv_distort],
+                    self.type_ in [scene_control.track_hide, scene_control.track_show, scene_control.arcahv_distort],
                     self.param1 is None,
                     self.param2 is None,
                 ]),
                 all([
-                    self.type_ in [scene_control.track_display,
-                                   scene_control.redline, scene_control.arcahv_debris],
+                    self.type_ in [scene_control.track_display, scene_control.redline, scene_control.arcahv_debris],
                     isinstance(self.param1, float),
                     isinstance(self.param2, int),
                 ]),
@@ -584,8 +567,7 @@ class SceneControl(Control):
                     self.param2 in range(2),
                 ]),
                 all([
-                    self.type_ in [scene_control.enwidenlanes,
-                                   scene_control.enwidencamera],
+                    self.type_ in [scene_control.enwidenlanes, scene_control.enwidencamera],
                     isinstance(self.param1, float),
                     self.param2 in range(2),
                 ])
@@ -620,8 +602,7 @@ class TimingGroup(Chart, Control):
             isinstance(self.type_list, list),
             all(sub_type in AffToken.Value.TimingGroup.all for sub_type in self.type_list),
             isinstance(self.command_list, list),
-            all(sub_command.syntax_check()
-                for sub_command in self.command_list)
+            all(sub_command.syntax_check() for sub_command in self.command_list)
         ])
 
     def get_combo_of(self, type_: Type['Note']):

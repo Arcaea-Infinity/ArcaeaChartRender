@@ -286,7 +286,7 @@ class Render(object):
         im_arctap_designant = Image.open(self.theme.arctap_designant_path).convert(
             'RGBA').resize((width_arctap, height_arctap))
 
-        def arc_is_designant(arc: Arc) -> Image.Image:
+        def skyline_or_designant(arc: Arc) -> Image.Image:
             return im_arctap if arc.is_skyline is True else im_arctap_designant
 
         for arc in self._chart.get_command_list_for_type(Arc, search_in_timing_group=True, exclude_noinput=False):
@@ -295,7 +295,7 @@ class Render(object):
                 AffToken.Value.HitSound.glass_wav: im_arctap_sfx,
                 AffToken.Value.HitSound.voice_wav: im_arctap_sfx,
                 AffToken.Value.HitSound.kick_wav: im_arctap_sfx,
-            }.get(arc.hit_sound, arc_is_designant(arc))
+            }.get(arc.hit_sound, skyline_or_designant(arc))
             for arctap in arc.arctap_list:  # An Arc with an empty arctap_list will be automatically skipped.
                 x, z = Coordinate.from_normalized(sample.get_coordinate_tuple(arctap.tn))
                 t = arctap.tn // resize
