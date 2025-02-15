@@ -162,7 +162,7 @@ class Render(object):
         self._render()
 
     def _render(self):
-        self.theme = LightTheme if self._song.side == 0 else ConflictTheme
+        self.theme = ConflictTheme if self._song.side == 1 else LightTheme  # for Colorless and Lephon
         self.im = Image.new('RGBA', (width_track + additional_canvas_width, self.h), self.theme.transparent_color)
 
         self._draw_track_tile()
@@ -277,18 +277,25 @@ class Render(object):
             t = hold.t1 // resize
             self.im.alpha_composite(im_stretched_hold, (int(x), Coordinate.from_cartesian(self.h, t, stretched_height_hold)))
 
+
     def _draw_arc_tap(self):
         """Draw all ArcTaps on skyline."""
         im_arctap = Image.open(self.theme.arctap_path).convert('RGBA').resize((width_arctap, height_arctap))
         im_arctap_sfx = Image.open(self.theme.arctap_sfx_path).convert('RGBA')
         im_arctap_sfx = im_arctap_sfx.resize((width_arctap, height_arctap))
+        im_arctap_designant = Image.open(self.theme.arctap_designant_path).convert(
+            'RGBA').resize((width_arctap, height_arctap))
+
+        def arc_is_designant(arc: Arc) -> Image.Image:
+            return im_arctap if arc.is_skyline is True else im_arctap_designant
+
         for arc in self._chart.get_command_list_for_type(Arc, search_in_timing_group=True, exclude_noinput=False):
             sample = Sample(arc)
             which_im_arctap = {
                 AffToken.Value.HitSound.glass_wav: im_arctap_sfx,
                 AffToken.Value.HitSound.voice_wav: im_arctap_sfx,
                 AffToken.Value.HitSound.kick_wav: im_arctap_sfx,
-            }.get(arc.hit_sound, im_arctap)
+            }.get(arc.hit_sound, arc_is_designant(arc))
             for arctap in arc.arctap_list:  # An Arc with an empty arctap_list will be automatically skipped.
                 x, z = Coordinate.from_normalized(sample.get_coordinate_tuple(arctap.tn))
                 t = arctap.tn // resize
@@ -321,8 +328,10 @@ class Render(object):
                     Color.Green: (im_arc_green, self.theme.arc_green_color),
                 }.get(arc.color)
                 thickness = self.theme.thickness_arc
-            elif arc.is_skyline:
+            elif arc.is_skyline is True:
                 im, color, thickness = im_arc_skyline, self.theme.arc_skyline_color, self.theme.thickness_skyline
+            elif arc.is_skyline == 'Designant':
+                im, color, thickness = im_arc_skyline, self.theme.arc_designant_color, self.theme.thickness_skyline
             else:
                 raise TypeError(f'Unsupported arc type: {arc}')
             # draw arc or skyline
