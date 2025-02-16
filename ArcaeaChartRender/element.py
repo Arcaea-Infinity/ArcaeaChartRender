@@ -118,8 +118,8 @@ class Chart(object):
             exclude_noinput: bool = False,
     ) -> Iterator[_T]:
         """Return an iterator of commands of the given type."""
-        if type_ == ArcTap:
-            list_of_arctap_list = (arc.arctap_list for arc in self.command_list if isinstance(arc, Arc))
+        if type_ == ArcTap:                                                                             # idk if this breaks something else
+            list_of_arctap_list = (arc.arctap_list for arc in self.command_list if isinstance(arc, Arc) and arc.is_skyline is True)
             list_in_chart = chain(*list_of_arctap_list)
         else:
             list_in_chart = (command for command in self.command_list if isinstance(command, type_))
@@ -329,7 +329,7 @@ class Arc(LongNote):
 
     def __repr__(self):
         pos = f'from ({self.x1}, {self.y1}) to ({self.x2}, {self.y2})'
-        color: Color | Literal['Designant'] = self.color
+        color_str: str= f'{self.color} Arc'
         if self.is_skyline is True:
             if self.arctap_list:
                 literal_arctap_list = ', with arctap: ' + ' '.join(map(lambda _: str(_.tn), self.arctap_list))
@@ -340,8 +340,8 @@ class Arc(LongNote):
                 f'{literal_arctap_list}'
             )
         elif self.is_skyline == 'Designant':
-            color = 'Designant'
-        return f'[{self.t1} -> {self.t2} {color} Arc] {pos}'
+            color_str = 'Designant Skyline'  # always skyline
+        return f'[{self.t1} -> {self.t2} {color_str}] {pos}'
 
     def __eq__(self, other):
         return all([
