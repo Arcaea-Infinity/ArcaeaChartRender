@@ -329,19 +329,22 @@ class Arc(LongNote):
 
     def __repr__(self):
         pos = f'from ({self.x1}, {self.y1}) to ({self.x2}, {self.y2})'
-        color_str: str= f'{self.color} Arc'
-        if self.is_skyline is True:
+        if self.is_skyline:
             if self.arctap_list:
                 literal_arctap_list = ', with arctap: ' + ' '.join(map(lambda _: str(_.tn), self.arctap_list))
             else:
                 literal_arctap_list = ''
+
+            if self.is_skyline == 'Designant':
+                return (
+                    f'[{self.t1} -> {self.t2} Designant Skyline] {pos}'
+                    f'{literal_arctap_list}'
+                )
             return (
                 f'[{self.t1} -> {self.t2} Skyline] {pos}'
                 f'{literal_arctap_list}'
             )
-        elif self.is_skyline == 'Designant':
-            color_str = 'Designant Skyline'  # always skyline
-        return f'[{self.t1} -> {self.t2} {color_str}] {pos}'
+        return f'[{self.t1} -> {self.t2} {self.color} Arc] {pos}'
 
     def __eq__(self, other):
         return all([
