@@ -64,8 +64,10 @@ class BaseTheme(ABC):
     arc_green_color = (35, 255, 108)
     arc_alpha = (0, 0, 0)  # for arc whose color is Color.Alpha (like PRAGMATISM BYD)
     arc_skyline_color = (144, 138, 144)
+    arc_designant_color = (201, 46, 22)
     text_song_title_color = (222, 222, 222, 255)  # color for song title at text area
     text_song_title_stroke_color = (70, 70, 70, 255)
+    arctap_designant_path = './assets/models/tap_tomato.png'
 
     thickness_arc = 10
     thickness_skyline = 2
