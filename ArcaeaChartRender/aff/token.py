@@ -29,7 +29,8 @@ class AffToken(object):
         class SkyLine(object):
             true = 'true'
             false = 'false'
-            all = [true, false]
+            designant = 'designant'
+            all = [true, false, designant]
 
         class HitSound(object):
             none = 'none'

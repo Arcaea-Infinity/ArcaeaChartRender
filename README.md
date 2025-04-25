@@ -25,7 +25,7 @@ Before using, you need to copy and rename [`theme.py`](./ArcaeaChartRender/theme
 If a property of `BaseTheme` is inherited by one of its subclasses (e.g. `LightTheme`), you should modify the property on its subclass. If the property is not inherited, then you should modify it directly on `BaseTheme`.
 
 | name                              | file                                                                                                                                |
-|-----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | `font_Exo_SemiBold_XX`            | `Exo-SemiBold.ttf`                                                                                                                  |
 | `font_Kazesawa_Regular_XX`        | `Kazesawa-Regular.ttf`                                                                                                              |
 | `font_SourceHanMonoSC_Regular_XX` | [`SourceHanMonoSC-Regular.otf`](https://github.com/adobe-fonts/source-han-mono/blob/master/Regular/OTC/SourceHanMonoSC-Regular.otf) |
@@ -33,9 +33,10 @@ If a property of `BaseTheme` is inherited by one of its subclasses (e.g. `LightT
 | `tap_path`                        | `note.png` and `note_dark.png`                                                                                                      |
 | `hold_path`                       | `note_hold.png` and `note_hold_dark.png`                                                                                            |
 | `arctap_path`                     | `tap_l.png` and `tap_d.png`                                                                                                         |
+| `arctap_designant_path`           | `tap_tomato.png`                                                                                                                    |
 | `arctap_sfx_path`                 | `sfx_l_note.jpg` and `sfx_d_note.jpg`                                                                                               |
 | `default_bg_path`                 | `base_light.jpg` and `base_conflict.jpg`                                                                                            |
-| `custom_bg_dir_path `             | put your custom background here if `bg` field has been defined in songlist                                                          |
+| `custom_bg_dir_path`              | put your custom background here if `bg` field has been defined in songlist                                                          |
 
  > ⚠ Note: <br> This repo does **NOT** provide these assets files, you need to obtain them by yourself. It is recommended to get them at [Arcaea-Infinity/OpenArcaeaArts](https://github.com/Arcaea-Infinity/OpenArcaeaArts) (Licensed under `CC BY-NC`).
 

@@ -17,7 +17,7 @@ __all__ = [
 
 from abc import ABC, abstractmethod
 from itertools import chain
-from typing import Union, Optional, Type, TypeVar, Iterator, Iterable
+from typing import Union, Optional, Type, TypeVar, Iterator, Iterable, Literal
 
 from .aff.token import AffToken, Color
 from .utils import len_iter
@@ -118,8 +118,8 @@ class Chart(object):
             exclude_noinput: bool = False,
     ) -> Iterator[_T]:
         """Return an iterator of commands of the given type."""
-        if type_ == ArcTap:
-            list_of_arctap_list = (arc.arctap_list for arc in self.command_list if isinstance(arc, Arc))
+        if type_ == ArcTap:                                                                             # idk if this breaks something else
+            list_of_arctap_list = (arc.arctap_list for arc in self.command_list if isinstance(arc, Arc) and arc.is_skyline is True)
             list_in_chart = chain(*list_of_arctap_list)
         else:
             list_in_chart = (command for command in self.command_list if isinstance(command, type_))
@@ -320,9 +320,10 @@ class Arc(LongNote):
         self.hit_sound = hit_sound
         # Regardless of the value of is_skyline,
         # as long as arctap_list exists, then it must be skyline.
-        self.is_skyline = {
+        self.is_skyline: bool | Literal['Designant'] = {
                               AffToken.Value.SkyLine.true: True,
-                              AffToken.Value.SkyLine.false: False
+                              AffToken.Value.SkyLine.false: False,
+                              AffToken.Value.SkyLine.designant: 'Designant'
                           }[is_skyline] or bool(arctap_list)
         self.arctap_list = arctap_list
 
@@ -333,6 +334,12 @@ class Arc(LongNote):
                 literal_arctap_list = ', with arctap: ' + ' '.join(map(lambda _: str(_.tn), self.arctap_list))
             else:
                 literal_arctap_list = ''
+
+            if self.is_skyline == 'Designant':
+                return (
+                    f'[{self.t1} -> {self.t2} Designant Skyline] {pos}'
+                    f'{literal_arctap_list}'
+                )
             return (
                 f'[{self.t1} -> {self.t2} Skyline] {pos}'
                 f'{literal_arctap_list}'
@@ -607,7 +614,7 @@ class TimingGroup(Chart, Control):
         Return 0 if 'type_list' contains 'noinput'.
         """
         return 0 if 'noinput' in self.type_list else super().get_combo_of(type_)
-    
+
     def get_total_combo_before(self, t: int) -> int:
         """
         Return the total combo before given time.
