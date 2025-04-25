@@ -8,8 +8,8 @@ resolution-markers = [
 ]
 
 [[package]]
-name = "arcaeachartrender"
-version = "0.1.0"
+name = "ArcaeaChartRender"
+version = "1.0.0"
 source = { virtual = "." }
 dependencies = [
     { name = "numpy" },
