@@ -1,0 +1,12 @@
+[project]
+name = "arcaeachartrender"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy==1.23.5",
+    "opencv-python~=4.5.5.64",
+    "pillow~=9.1.1",
+    "pydantic~=1.9.1",
+    "pyparsing~=3.0.9",
+]

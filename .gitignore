@@ -131,4 +131,3 @@ dmypy.json
 # res
 ArcaeaChartRender/theme_local.py
 render_test.py
-pyproject.toml

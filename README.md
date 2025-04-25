@@ -14,6 +14,12 @@
 pip install -r requirements.txt
 ```
 
+Or, if you are using `uv`:
+
+```bash
+uv sync
+```
+
 ## Usage
 
 Render an Arcaea Chart simply.
